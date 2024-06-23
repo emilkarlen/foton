@@ -1,0 +1,19 @@
+[act]
+
+@ BIN_DRY
+
+[setup]
+
+stdin = <<EOF
+non-exiting-file
+EOF
+
+[assert]
+
+exit-code != 0
+
+stdout is-empty
+
+stderr ! is-empty
+
+dir-contents . : is-empty

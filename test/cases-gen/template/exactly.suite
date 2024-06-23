@@ -1,0 +1,8 @@
+[cases]
+
+*.case
+
+[setup]
+
+including ../common.xly
+including defs.xly

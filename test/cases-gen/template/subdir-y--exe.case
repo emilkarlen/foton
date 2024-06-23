@@ -1,0 +1,20 @@
+[act]
+
+@ BIN_EXE
+
+[setup]
+
+including subdir-y.setup
+
+[assert]
+
+exit-code == 0
+
+dir-contents . : matches -full
+{
+  @[SUB_DIR]@ : type dir && dir-contents @[MATCHES_RENAMED_FILES]@
+}
+
+stdout equals @[RENAMINGS_FILE_LIST_subdir]@
+
+stderr is-empty

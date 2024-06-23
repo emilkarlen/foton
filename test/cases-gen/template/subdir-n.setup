@@ -1,0 +1,3 @@
+dir . += @[FILES]@
+
+stdin = @[ORIGINAL_FILE_LIST]@

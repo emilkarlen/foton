@@ -1,0 +1,3 @@
+dir @[SUB_DIR]@ = @[FILES]@
+
+stdin = @[ORIGINAL_FILE_LIST_subdir]@

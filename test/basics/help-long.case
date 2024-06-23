@@ -1,0 +1,10 @@
+[act]
+
+@ BIN --help
+
+[assert]
+
+exit-code == 0
+
+stderr is-empty
+stdout ! is-empty

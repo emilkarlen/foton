@@ -1,0 +1,11 @@
+[act]
+
+@ BIN_EXE superfluous-arg
+
+[assert]
+
+exit-code != 0
+
+stderr ! is-empty
+
+stdout is-empty

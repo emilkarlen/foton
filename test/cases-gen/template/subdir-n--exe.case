@@ -1,0 +1,17 @@
+[act]
+
+@ BIN_EXE
+
+[setup]
+
+including subdir-n.setup
+
+[assert]
+
+exit-code == 0
+
+dir-contents . : @[MATCHES_RENAMED_FILES]@
+
+stderr is-empty
+
+stdout equals @[RENAMINGS_FILE_LIST]@

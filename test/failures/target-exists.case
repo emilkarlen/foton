@@ -1,0 +1,29 @@
+[act]
+
+@ BIN_EXE
+
+[setup]
+
+dir . +=
+  {
+    file existing.ext
+    file existing.EXT
+  }
+
+stdin = <<EOF
+existing.EXT
+EOF
+
+[assert]
+
+exit-code != 0
+
+stdout is-empty
+
+stderr ! is-empty
+
+dir-contents . : matches -full
+{
+    existing.ext : @[IS_EMPTY_FILE]@
+    existing.EXT : @[IS_EMPTY_FILE]@
+}

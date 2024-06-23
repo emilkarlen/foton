@@ -1,0 +1,12 @@
+[conf]
+
+act-home = ../target/debug
+
+[setup]
+
+def program BIN = @[EXACTLY_ACT_HOME]@/foton
+
+def program BIN_EXE = @ BIN -x
+def program BIN_DRY = @ BIN
+
+def file-matcher IS_EMPTY_FILE = type file && contents is-empty

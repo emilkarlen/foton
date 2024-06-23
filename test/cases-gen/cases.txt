@@ -1,0 +1,9 @@
+no-ext/NOEXT
+lower-ext/a.ext
+upper-ext/b.EXT/b.ext
+mixed-ext/c.Ext/c.ext
+multi-ext/d.NONLASTEXT.LASTEXT/d.NONLASTEXT.lastext
+dot-just-head/.head
+dot-w-ext/.head.DOTEXT/.head.dotext
+spc-in-stem/the file name.EXT/the file name.ext
+spc-in-ext/stem.EXT W SPC/stem.ext w spc
