@@ -187,7 +187,7 @@ def _cli_all(args: Sequence[str]):
 
     dst_dir = Path(args[1])
     if dst_dir.exists():
-        exit_failure('DST-DIR: Must not be an existing file: ' + str(template_dir))
+        exit_failure('DST-DIR: Must not exist: ' + str(dst_dir))
 
     _do_all(cases_file, template_dir, dst_dir)
 
@@ -199,7 +199,7 @@ def _cli_individual(args: Sequence[str]):
 
     dst_dir = Path(args[1])
     if dst_dir.exists():
-        exit_failure('DST-DIR: Must not exist: ' + str(template_dir))
+        exit_failure('DST-DIR: Must not exist: ' + str(dst_dir))
 
     _do_individual(cases_file, template_dir, dst_dir)
 
