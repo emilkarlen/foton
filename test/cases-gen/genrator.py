@@ -51,14 +51,22 @@ class FileNameRenamingsFormatter:
     @staticmethod
     def _format_file_name(file_name: FileName):
         if file_name.renamed is None:
-            return file_name.original
+            return FileNameRenamingsFormatter._skipped_path_regex(file_name.original)
         else:
-            return '{} -> {}'.format(file_name.original, file_name.renamed)
+            return '{} -> {}'.format(fn_re(file_name.original), fn_re(file_name.renamed))
+
+    @staticmethod
+    def _skipped_path_regex(src_file: str) -> str:
+        return '{}: .*'.format(fn_re(src_file))
+
 
     def __format__(self, format_spec):
         return '\n'.join(
             [self._format_file_name(fn) for fn in self._file_names]
         )
+
+def fn_re(file_name: str) -> str:
+    return file_name.replace(".", r"\.")
 
 def str_lit(s: str) -> str:
     return '\'' + s + '\''

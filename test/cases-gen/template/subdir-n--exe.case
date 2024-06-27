@@ -14,4 +14,4 @@ dir-contents . : @[MATCHES_RENAMED_FILES]@
 
 stderr is-empty
 
-stdout equals @[RENAMINGS_FILE_LIST]@
+stdout matches @[RENAMINGS_FILE_LIST]@
