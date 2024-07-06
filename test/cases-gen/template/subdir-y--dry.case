@@ -15,6 +15,6 @@ dir-contents . : matches -full
   @[SUB_DIR]@ : type dir && dir-contents @[MATCHES_ORIGINAL_FILES]@
 }
 
-stdout is-empty
+stderr matches -full @[SKIP_FILE_LIST_re_subdir]@
 
-stderr matches @[RENAMINGS_FILE_LIST_subdir]@
+stdout equals @[RENAMINGS_FILE_LIST_subdir]@

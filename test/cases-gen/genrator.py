@@ -25,6 +25,9 @@ class FileName:
         self.original = original
         self.renamed = renamed
 
+    def is_rename(self) -> bool:
+        return self.renamed is not None
+
 
 class OriginalFileNamesFormatter:
     def __init__(self, file_names: Sequence[FileName]):
@@ -44,32 +47,36 @@ class SymRefFormatter:
         return '@[{}]@'.format(self._symbol)
 
 
-class FileNameRenamingsFormatter:
-    def __init__(self, file_names: Sequence[FileName]):
+class LineListStrFormatter:
+    def __init__(self, fn_formatter, file_names: Sequence[FileName]):
+        self._fn_formatter = fn_formatter
         self._file_names = file_names
 
-    @staticmethod
-    def _format_file_name(file_name: FileName):
-        if file_name.renamed is None:
-            return FileNameRenamingsFormatter._skipped_path_regex(file_name.original)
-        else:
-            return '{} -> {}'.format(fn_re(file_name.original), fn_re(file_name.renamed))
-
-    @staticmethod
-    def _skipped_path_regex(src_file: str) -> str:
-        return '{}: .*'.format(fn_re(src_file))
-
-
     def __format__(self, format_spec):
-        return '\n'.join(
-            [self._format_file_name(fn) for fn in self._file_names]
-        )
+        if not self._file_names:
+            return "''"
+        else:
+            lines = '\n'.join(
+                [self._fn_formatter(fn) for fn in self._file_names]
+            )
+            return "\n<<EOF\n{}\nEOF".format(lines)
+
+
+def format_skip_re(fn: FileName) -> str:
+    return '{}: .*'.format(fn_re(fn.original))
+
+
+def format_rename(fn: FileName) -> str:
+    return '{} -> {}'.format(fn.original, fn.renamed)
+
 
 def fn_re(file_name: str) -> str:
     return file_name.replace(".", r"\.")
 
+
 def str_lit(s: str) -> str:
     return '\'' + s + '\''
+
 
 class FilesFormatter:
     def __init__(self, file_names: Sequence[FileName]):
@@ -134,16 +141,21 @@ def definitions(file_names: Sequence[FileName]) -> str:
     subdir_ref = format(SymRefFormatter(SUB_DIR_SYMBOL))
     subdir_files = [in_subdir(subdir_ref, fn) for fn in file_names]
 
+    files_s, files_r = partition_is_rename(file_names)
+    files_subdir_s, files_subdir_r = partition_is_rename(subdir_files)
+
     return DEFINITIONS.format(
         GENERATION_TIME_STAMP=time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime()),
         SUB_DIR_SYMBOL=SUB_DIR_SYMBOL,
         ORIGINAL_FILE_LIST=OriginalFileNamesFormatter(file_names),
-        RENAMINGS_FILE_LIST=FileNameRenamingsFormatter(file_names),
+        RENAMINGS_FILE_LIST=LineListStrFormatter(format_rename, files_r),
+        SKIP_FILE_LIST=LineListStrFormatter(format_skip_re, files_s),
         FILES=FilesFormatter(file_names),
         ORIGINAL_FILES_MATCHERS=OriginalFilesFormatter(file_names),
         RENAMED_FILES_MATCHERS=RenamedFilesFormatter(file_names),
         ORIGINAL_FILE_LIST__SUBDIR=OriginalFileNamesFormatter(subdir_files),
-        RENAMINGS_FILE_LIST__SUBDIR=FileNameRenamingsFormatter(subdir_files),
+        RENAMINGS_FILE_LIST__SUBDIR=LineListStrFormatter(format_rename, files_subdir_r),
+        SKIP_FILE_LIST__SUBDIR=LineListStrFormatter(format_skip_re, files_subdir_s),
     )
 
 
@@ -267,6 +279,18 @@ def log(msg):
     print(msg, file=sys.stderr)
 
 
+def partition_is_rename(file_names: Sequence[FileName]) -> Tuple[Sequence[FileName], Sequence[FileName]]:
+    lf = []
+    lt = []
+    for fn in file_names:
+        if fn.is_rename():
+            lt.append(fn)
+        else:
+            lf.append(fn)
+
+    return lf, lt
+
+
 XLY_SUITE__INDIVIDUAL = """\
 [suites]
 
@@ -287,20 +311,18 @@ def string ORIGINAL_FILE_LIST =
 {ORIGINAL_FILE_LIST}
 EOF
 
-def string RENAMINGS_FILE_LIST =
-<<EOF
-{RENAMINGS_FILE_LIST}
-EOF
+def string RENAMINGS_FILE_LIST = {RENAMINGS_FILE_LIST}
+
+def string SKIP_FILE_LIST_re = {SKIP_FILE_LIST}
 
 def string ORIGINAL_FILE_LIST_subdir =
 <<EOF
 {ORIGINAL_FILE_LIST__SUBDIR}
 EOF
 
-def string RENAMINGS_FILE_LIST_subdir =
-<<EOF
-{RENAMINGS_FILE_LIST__SUBDIR}
-EOF
+def string RENAMINGS_FILE_LIST_subdir = {RENAMINGS_FILE_LIST__SUBDIR}
+
+def string SKIP_FILE_LIST_re_subdir = {SKIP_FILE_LIST__SUBDIR}
 
 def files-source FILES =
 {{

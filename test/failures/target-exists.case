@@ -16,11 +16,14 @@ EOF
 
 [assert]
 
-exit-code != 0
+exit-code == 0
 
 stdout is-empty
 
-stderr ! is-empty
+stderr matches -full
+<<EOF
+existing\.EXT: .*
+EOF
 
 dir-contents . : matches -full
 {

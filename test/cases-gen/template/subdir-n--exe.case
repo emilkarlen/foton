@@ -12,6 +12,6 @@ exit-code == 0
 
 dir-contents . : @[MATCHES_RENAMED_FILES]@
 
-stderr is-empty
+stderr matches -full @[SKIP_FILE_LIST_re]@
 
-stdout matches @[RENAMINGS_FILE_LIST]@
+stdout equals @[RENAMINGS_FILE_LIST]@

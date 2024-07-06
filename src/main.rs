@@ -13,7 +13,9 @@ fn main()
 
     let stdin_reader = BufReader::new(std::io::stdin());
 
-    do_it(resolve_renamer(args.x), stdin_reader);
+    let reporter = Reporter::new();
+
+    do_it(resolve_renamer(args.x), stdin_reader, &reporter);
 }
 
 /// Read file names from stdin (one per line) and rename the file so that its extension is lowercase
@@ -25,16 +27,61 @@ struct CliArgs
     x: bool,
 }
 
-fn do_it(mut renamer: Renamer, file_names_reader: BufReader<Stdin>)
+fn do_it(renamer: Renamer, file_names_reader: BufReader<Stdin>, reporter: &Reporter)
 {
-    let paths = file_names_reader.lines().filter_map(try_get_path);
+    // let try_get_path2 = |path: std::io::Result<String>| -> Option<PathBuf>  {
+    //     match path {
+    //         Ok(s) => Some(PathBuf::from(s)),
+    //         Err(e) => {reporter.report_invalid_path(&e); None },
+    //     }
+    // };
+
+    // let paths = file_names_reader.lines().filter_map(try_get_path2);
+
+    let paths = get_paths(file_names_reader, reporter);
     let rename_or_skip_list = paths.map(analyze_path_string);
     for rename_or_skip in rename_or_skip_list {
         match rename_or_skip {
-            Ok(r) => renamer.apply(&r),
-            Err(skip) => report_skip(&skip),
+            Ok(r) => renamer.apply(&r, reporter),
+            Err(skip) => reporter.report_skip(&skip),
         }
     }
+}
+
+fn get_paths(file_names_reader: BufReader<Stdin>, reporter: &Reporter) -> impl Iterator<Item = PathBuf> + '_
+{
+    let try_get_path2 = |path: std::io::Result<String>| -> Option<PathBuf>  {
+        match path {
+            Ok(s) => Some(PathBuf::from(s)),
+            Err(e) => {reporter.report_invalid_path(&e); None },
+        }
+    };
+
+    file_names_reader.lines().filter_map(try_get_path2)
+}
+
+struct Skip
+{
+    msg: String,
+    path: PathBuf,
+}
+
+impl Skip
+{
+    fn new(msg: String, path: PathBuf) -> Self
+    {
+        Skip { msg, path }
+    }
+    fn new_err<T>(msg: String, path: PathBuf) -> Result<T, Self>
+    {
+        Err(Skip::new(msg, path))
+    }
+}
+
+enum DoNotRenameCause
+{
+    ASkip(Skip),
+    IoError(io::Error),
 }
 
 struct Rename
@@ -43,61 +90,89 @@ struct Rename
     to: PathBuf,
 }
 
-struct RenameReporter
+type WriteGetter = fn() -> Box<dyn Write>;
+
+struct Reporter
 {
-    stream: Box<dyn Write>,
+    rename: WriteGetter,
+    skip: WriteGetter,
+    io_error: WriteGetter,
+
 }
 
-impl RenameReporter
+impl Reporter
 {
-    fn report(&mut self, rename: &Rename)
+    fn new() -> Self
+    {
+        Reporter
+        {
+            rename: || Box::new(io::stdout()),
+            skip: || Box::new(io::stderr()),
+            io_error: || Box::new(io::stderr()),
+        }
+    }
+
+    fn report_rename(&self, rename: &Rename)
     {
         let msg = format!("{} -> {}\n",
                                rename.from.display(),
                                rename.to.display());
-        write_formatted(&mut self.stream, msg);
+        write_to_stream(self.rename,  msg)
+    }
+
+    fn report_skip(&self, skip: &Skip)
+    {
+        let msg = format!("{}: {}\n",
+                               skip.path.display(),
+                               skip.msg);
+        write_to_stream(self.skip,  msg)
+    }
+
+
+    fn report_io_error(&self, path: &PathBuf, error: &io::Error)
+    {
+        let msg = format!("{}: {}\n",
+                               path.display(),
+                               error.to_string());
+        write_to_stream(self.io_error,  msg)
+    }
+
+    fn report_invalid_path(&self, error: &io::Error)
+    {
+        let msg = format!("{}\n",
+                               error.to_string());
+        write_to_stream(self.io_error,  msg)
     }
 }
 
-fn write_formatted(stream: &mut Box<dyn Write>, msg: String)
+fn write_to_stream(stream: WriteGetter, msg: String)
 {
-    match stream.write(msg.into_bytes().as_slice()) {
+    match stream().write(msg.into_bytes().as_slice()) {
         Ok(_) => (),
         Err(io_error) => eprintln!("IO error while writing: {}", io_error),
     }
 }
-fn report_skip(skip: &Skip)
-{
-    eprintln!("{}: {}", skip.path.display(), skip.msg);
-}
 
 struct Renamer
 {
-    reporter: RenameReporter,
     action: fn(&Rename) -> Option<io::Error>,
-    io_error_reporter: fn(&PathBuf, error: &io::Error),
 }
 
-enum DoNotRenameCause
-{
-    ASkip(Skip),
-    IoError(io::Error),
-}
 impl Renamer
 {
-    fn apply(&mut self, rename: &Rename)
+    fn apply(&self, rename: &Rename, reporter: &Reporter)
     {
         match self.should_try_rename(&rename) {
             Some(do_not_rename_cause) => {
                 match do_not_rename_cause {
-                    DoNotRenameCause::ASkip(skip) => report_skip(&skip),
-                    DoNotRenameCause::IoError(io_error) => (self.io_error_reporter)(&rename.from, &io_error)
+                    DoNotRenameCause::ASkip(skip) => reporter.report_skip(&skip),
+                    DoNotRenameCause::IoError(io_error) => reporter.report_io_error(&rename.from, &io_error)
                 }
             }
             None => {
                 match (self.action)(rename) {
-                    None => self.reporter.report(rename),
-                    Some(io_error) => (self.io_error_reporter)(&rename.from, &io_error)
+                    None => reporter.report_rename(rename),
+                    Some(io_error) => reporter.report_io_error(&rename.from, &io_error)
                 }
             }
         }
@@ -147,49 +222,13 @@ fn resolve_renamer(execute: bool) -> Renamer
 {
     if execute {
         Renamer {
-            reporter: RenameReporter { stream: Box::new(io::stdout()) },
             action: do_rename,
-            io_error_reporter: report_io_error,
         }
     } else {
         Renamer {
-            reporter: RenameReporter { stream: Box::new(io::stderr()) },
             action: do_nothing,
-            io_error_reporter: report_io_error,
         }
     }
-}
-
-fn do_nothing(_rename: &Rename) -> Option<io::Error>
-{
-    None
-}
-
-fn do_rename(rename: &Rename) -> Option<io::Error>
-{
-    match std::fs::rename(rename.from.as_path(), rename.to.as_path()) {
-        Ok(_) => None,
-        Err(io_error) => Some(io_error),
-    }
-}
-
-struct Skip
-{
-    msg: String,
-    path: PathBuf,
-}
-
-impl Skip
-{
-    fn new(msg: String, path: PathBuf) -> Self
-    {
-        Skip { msg, path }
-    }
-    fn new_err<T>(msg: String, path: PathBuf) -> Result<T, Self>
-    {
-        Err(Skip::new(msg, path))
-    }
-
 }
 
 fn analyze_path_string(path: PathBuf) -> Result<Rename, Skip>
@@ -213,21 +252,15 @@ fn analyze_path_string(path: PathBuf) -> Result<Rename, Skip>
     }
 }
 
-fn try_get_path(item: std::io::Result<String>) -> Option<PathBuf>
+fn do_nothing(_rename: &Rename) -> Option<io::Error>
 {
-    match item {
-        Ok(s) => Some(PathBuf::from(s)),
-        Err(e) => report_invalid_path(&e.to_string()),
-    }
-}
-
-fn report_invalid_path<T>(msg: &str) -> Option<T>
-{
-    eprintln!("{}", msg);
     None
 }
 
-fn report_io_error(path: &PathBuf, error: &io::Error)
+fn do_rename(rename: &Rename) -> Option<io::Error>
 {
-    eprintln!("{:?}: {}", path.to_str(), error);
+    match std::fs::rename(rename.from.as_path(), rename.to.as_path()) {
+        Ok(_) => None,
+        Err(io_error) => Some(io_error),
+    }
 }
