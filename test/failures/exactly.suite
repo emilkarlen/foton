@@ -1,7 +1,3 @@
-[cases]
+[suites]
 
-*.case
-
-[setup]
-
-including ../common.xly
+missing-file
