@@ -1,25 +1,24 @@
 use std::io;
-use std::io::{BufReader, Stdin};
+use std::io::Stdin;
 use std::io::prelude::*;
-use std::iter::Iterator;
 use std::path::{Path, PathBuf};
+use std::convert::From;
 
 use clap::Parser;
 
 
-fn main()
+fn main() -> std::process::ExitCode
 {
     let args = CliArgs::parse();
 
-    let stdin_reader = BufReader::new(std::io::stdin());
+    let mut reporter = Reporter::new();
+    let renamer = Renamer::resolve(args.x);
 
-    let reporter = Reporter::new();
-
-    do_it(resolve_renamer(args.x), stdin_reader, &reporter);
+    do_it(std::io::stdin(), renamer,  &mut reporter)
 }
 
 /// Read file names from stdin (one per line) and rename the file so that its extension is lowercase
-#[derive(Parser)]
+#[derive(clap::Parser)]
 struct CliArgs
 {
     /// Do execute the action (default is to run dry)
@@ -27,77 +26,85 @@ struct CliArgs
     x: bool,
 }
 
-fn do_it(renamer: Renamer, file_names_reader: BufReader<Stdin>, reporter: &Reporter)
+fn do_it(file_names_reader: Stdin, renamer: Renamer,reporter: &mut Reporter) -> std::process::ExitCode
 {
-    // let try_get_path2 = |path: std::io::Result<String>| -> Option<PathBuf>  {
-    //     match path {
-    //         Ok(s) => Some(PathBuf::from(s)),
-    //         Err(e) => {reporter.report_invalid_path(&e); None },
-    //     }
-    // };
+    let mut exit_code = std::process::ExitCode::SUCCESS;
 
-    // let paths = file_names_reader.lines().filter_map(try_get_path2);
+    for input_line_r in file_names_reader.lines() {
+        match input_line_r {
+            Err(io_err) => {
+                reporter.report_stdin_read_error(&io_err);
+                exit_code = std::process::ExitCode::FAILURE;
+                break;
+            }
+            Ok(input_line) => {
+                process_file_name(&renamer, reporter, &input_line);
+            }
+        }
+    }
+    exit_code
+}
 
-    let paths = get_paths(file_names_reader, reporter);
-    let rename_or_skip_list = paths.map(analyze_path_string);
-    for rename_or_skip in rename_or_skip_list {
-        match rename_or_skip {
-            Ok(r) => renamer.apply(&r, reporter),
-            Err(skip) => reporter.report_skip(&skip),
+fn process_file_name(renamer: &Renamer, reporter: &mut Reporter, file_name: &String)
+{
+    let src = PathBuf::from(file_name);
+    match analyze_path_string(&src) {
+        Err(err) => {
+            reporter.report_src_str_err(file_name, &err);
+        }
+        Ok(dst) => {
+            let rename = Rename { src, dst };
+            match renamer.apply(&rename) {
+                Err(err) => {
+                    reporter.report_fs_error(file_name, &rename, &err);
+                }
+                Ok(_) => {
+                    reporter.report_rename(&rename);
+                }
+            }
         }
     }
 }
 
-fn get_paths(file_names_reader: BufReader<Stdin>, reporter: &Reporter) -> impl Iterator<Item = PathBuf> + '_
+/// Invalid path string
+enum PathStrError
 {
-    let try_get_path2 = |path: std::io::Result<String>| -> Option<PathBuf>  {
-        match path {
-            Ok(s) => Some(PathBuf::from(s)),
-            Err(e) => {reporter.report_invalid_path(&e); None },
-        }
-    };
-
-    file_names_reader.lines().filter_map(try_get_path2)
+    MissingFileName,
+    MissingExtension,
+    NonUnicodeExtension,
+    LowercaseExtension,
 }
 
-struct Skip
+/// Invalid file system files
+enum PathFsError
 {
-    msg: String,
-    path: PathBuf,
+    Src(SrcPathFsError),
+    Dst(DstPathFsError),
+    Rename(io::Error),
 }
 
-impl Skip
+enum SrcPathFsError
 {
-    fn new(msg: String, path: PathBuf) -> Self
-    {
-        Skip { msg, path }
-    }
-    fn new_err<T>(msg: String, path: PathBuf) -> Result<T, Self>
-    {
-        Err(Skip::new(msg, path))
-    }
+    Access(io::Error),
+    NotARegularFile,
 }
 
-enum DoNotRenameCause
+enum DstPathFsError
 {
-    ASkip(Skip),
-    IoError(io::Error),
+    ExistenceCheck(io::Error),
+    Exists,
 }
 
 struct Rename
 {
-    from: PathBuf,
-    to: PathBuf,
+    src: PathBuf,
+    dst: PathBuf,
 }
-
-type WriteGetter = fn() -> Box<dyn Write>;
-
 struct Reporter
 {
-    rename: WriteGetter,
-    skip: WriteGetter,
-    io_error: WriteGetter,
-
+    rename: Box<dyn Write>,
+    skip: Box<dyn Write>,
+    io_error: Box<dyn Write>,
 }
 
 impl Reporter
@@ -106,161 +113,208 @@ impl Reporter
     {
         Reporter
         {
-            rename: || Box::new(io::stdout()),
-            skip: || Box::new(io::stderr()),
-            io_error: || Box::new(io::stderr()),
+            rename: Box::new(io::stdout()),
+            skip: Box::new(io::stderr()),
+            io_error: Box::new(io::stderr()),
         }
     }
 
-    fn report_rename(&self, rename: &Rename)
+    fn report_src_str_err(&mut self, file_name: &String, cause: &PathStrError)
+    {
+        let explanation = err_fmt::src_str_err(cause);
+        self.report_skip(file_name, &explanation);
+    }
+
+    fn report_fs_error(&mut self, file_name: &String, rename: &Rename, cause: &PathFsError)
+    {
+        let explanation = err_fmt::fs_err(cause, &rename.dst);
+        self.report_skip(file_name, &explanation);
+    }
+
+    fn report_rename(&mut self, rename: &Rename)
     {
         let msg = format!("{} -> {}\n",
-                               rename.from.display(),
-                               rename.to.display());
-        write_to_stream(self.rename,  msg)
+                               rename.src.to_string_lossy(),
+                               rename.dst.to_string_lossy());
+        Reporter::write_to_stream(&mut self.rename,  msg)
     }
 
-    fn report_skip(&self, skip: &Skip)
+    fn report_skip(&mut self, file_name: &String, cause: &str)
     {
-        let msg = format!("{}: {}\n",
-                               skip.path.display(),
-                               skip.msg);
-        write_to_stream(self.skip,  msg)
+        let msg = err_fmt::format_skip(file_name, cause);
+        Reporter::write_to_stream(&mut self.skip,  msg)
     }
 
-
-    fn report_io_error(&self, path: &PathBuf, error: &io::Error)
+    fn report_stdin_read_error(&mut self, error: &io::Error)
     {
-        let msg = format!("{}: {}\n",
-                               path.display(),
-                               error.to_string());
-        write_to_stream(self.io_error,  msg)
+        let msg = format!("{}\n", error.to_string());
+        Reporter::write_to_stream(&mut self.io_error,  msg)
     }
 
-    fn report_invalid_path(&self, error: &io::Error)
+    fn write_to_stream(stream: &mut Box<dyn Write>, msg: String)
     {
-        let msg = format!("{}\n",
-                               error.to_string());
-        write_to_stream(self.io_error,  msg)
+        match stream.write(msg.into_bytes().as_slice()) {
+            Ok(_) => (),
+            Err(io_error) => eprintln!("IO error while writing: {}", io_error),
+        }
     }
 }
 
-fn write_to_stream(stream: WriteGetter, msg: String)
+mod err_fmt
 {
-    match stream().write(msg.into_bytes().as_slice()) {
-        Ok(_) => (),
-        Err(io_error) => eprintln!("IO error while writing: {}", io_error),
+    use crate::PathStrError;
+    use crate::PathFsError;
+    use crate::SrcPathFsError;
+    use crate::DstPathFsError;
+    use std::path::PathBuf;
+    use std::io;
+    
+    pub fn format_skip(file_name: &String, cause: &str) -> String
+    {
+        format!("{}: {}\n", file_name, cause)
+    }
+
+    pub fn fs_err(cause: &PathFsError, dst: &PathBuf) -> String
+    {
+        match cause {
+            PathFsError::Src(err) => fs_src_err(err),
+            PathFsError::Dst(err) => fs_dst_err(err, dst),
+            PathFsError::Rename(io_err) => fs_rename_err(io_err, dst),
+        }
+    }
+
+    pub fn src_str_err(cause: &PathStrError) -> &'static str
+    {
+        match cause {
+            PathStrError::MissingFileName =>
+                "missing file name",
+            PathStrError::MissingExtension =>
+                "missing extension",
+            PathStrError::NonUnicodeExtension =>
+                "non-Unicode extension",
+            PathStrError::LowercaseExtension =>
+                "extension is lowercase",
+        }
+    }
+
+    fn fs_src_err(cause: &SrcPathFsError) -> String
+    {
+        match cause {
+            SrcPathFsError::Access(io_error) => io_error.to_string(),
+            SrcPathFsError::NotARegularFile => String::from("not a regular file"),
+        }
+    }
+    
+    fn fs_dst_err(cause: &DstPathFsError, dst: &PathBuf) -> String
+    {
+        match cause {
+            DstPathFsError::ExistenceCheck(io_error) => io_error.to_string(),
+            DstPathFsError::Exists => format!("Exists: {}", dst.to_string_lossy()),
+        }
+    }
+        
+    fn fs_rename_err(cause: &io::Error, _dst: &PathBuf) -> String
+    {
+        cause.to_string()
     }
 }
 
 struct Renamer
 {
-    action: fn(&Rename) -> Option<io::Error>,
+    action: fn(&Rename) -> Result<(), io::Error>,
 }
 
 impl Renamer
 {
-    fn apply(&self, rename: &Rename, reporter: &Reporter)
+
+    fn resolve(execute: bool) -> Renamer
     {
-        match self.should_try_rename(&rename) {
-            Some(do_not_rename_cause) => {
-                match do_not_rename_cause {
-                    DoNotRenameCause::ASkip(skip) => reporter.report_skip(&skip),
-                    DoNotRenameCause::IoError(io_error) => reporter.report_io_error(&rename.from, &io_error)
-                }
+        if execute {
+            Renamer {
+                action: Renamer::do_rename,
             }
-            None => {
-                match (self.action)(rename) {
-                    None => reporter.report_rename(rename),
-                    Some(io_error) => reporter.report_io_error(&rename.from, &io_error)
-                }
+        } else {
+            Renamer {
+                action: Renamer::do_nothing,
             }
         }
     }
 
-    fn should_try_rename(&self, rename: &Rename) -> Option<DoNotRenameCause>
+    fn apply(&self, rename: &Rename) -> Result<(), PathFsError>
     {
-        let meta_data_result = rename.from.metadata();
+        self.check(rename)?;
+        (self.action)(rename).map_err(|e| PathFsError::Rename(e))
+    }
+
+    fn check(&self, rename: &Rename) -> Result<(), PathFsError>
+    {
+        self.check_src(&rename.src).map_err(|se| PathFsError::Src(se))?;
+        self.check_dst(&rename.dst).map_err(|se| PathFsError::Dst(se))
+    }
+
+    fn check_src(&self, src: &PathBuf) -> Result<(), SrcPathFsError>
+    {
+        let meta_data_result = src.metadata();
         match meta_data_result {
-            Err(io_error) => Some(DoNotRenameCause::IoError(io_error)),
+            Err(io_error) => Err(SrcPathFsError::Access(io_error)),
             Ok(meta_data) => {
                 if meta_data.is_file() { 
-                    self.check_dst_exists(rename)
+                    Ok(())
                 }
                 else {
-                    Some(DoNotRenameCause::ASkip(Skip::new(String::from("not a regular file"), rename.from.clone()))) 
+                    Err(SrcPathFsError::NotARegularFile) 
                 }
             }
         }
     }
 
-    fn check_dst_exists(&self, rename: &Rename) -> Option<DoNotRenameCause>
+    fn check_dst(&self, dst: &PathBuf) -> Result<(), DstPathFsError>
     {
-        let exists_r = rename.to.try_exists();
+        let exists_r = dst.try_exists();
         match exists_r {
             Err(io_error) => {
-                let msg = format!("cannot check DST for existence: {}", io_error.to_string());
-                Some(DoNotRenameCause::ASkip(
-                Skip::new(
-                    msg, 
-                rename.from.clone()))
+                Err(DstPathFsError::ExistenceCheck(io_error)
             ) },
             Ok(dst_exists) => {
                 if dst_exists { 
-                    Some(DoNotRenameCause::ASkip(Skip::new(String::from("DST exists"), rename.from.clone()))) 
-
+                    Err(DstPathFsError::Exists) 
                 }
                 else {
-                    None
+                    Ok(())
                 }
             }
         }
     }
-}
 
-fn resolve_renamer(execute: bool) -> Renamer
-{
-    if execute {
-        Renamer {
-            action: do_rename,
-        }
-    } else {
-        Renamer {
-            action: do_nothing,
-        }
+    fn do_nothing(_rename: &Rename) -> Result<(), io::Error>
+    {
+        Ok(())
     }
+
+    fn do_rename(rename: &Rename) -> Result<(), io::Error>
+    {
+        std::fs::rename(rename.src.as_path(), rename.dst.as_path())
+    }
+
 }
 
-fn analyze_path_string(path: PathBuf) -> Result<Rename, Skip>
+fn analyze_path_string(path: &PathBuf) -> Result<PathBuf, PathStrError>
 {
     let file_name = path.file_name()
-        .ok_or_else(|| Skip::new(String::from("path without file name"), path.clone()))
+        .ok_or_else(|| PathStrError::MissingFileName)
         .map(Path::new)?;
 
     let ext_os_str = file_name.extension()
-        .ok_or_else(|| Skip::new(String::from("path without extension"), path.clone()))?;
+        .ok_or_else(|| PathStrError::MissingExtension)?;
 
     let ext_str = ext_os_str.to_str()
-        .ok_or_else(|| Skip::new(String::from("path with non unicode extension"), path.clone()))?;
+        .ok_or_else(|| PathStrError::NonUnicodeExtension)?;
 
     let ext_str_lower = String::from(ext_str).to_lowercase();
     if ext_str_lower.eq(ext_str) {
-        Skip::new_err(String::from("path with lowercase extension"), path.clone())
+        Err(PathStrError::LowercaseExtension)
     } else {
         let path_w_lowercase_ext = path.with_extension(ext_str_lower);
-        Ok(Rename { from: path, to: path_w_lowercase_ext })
-    }
-}
-
-fn do_nothing(_rename: &Rename) -> Option<io::Error>
-{
-    None
-}
-
-fn do_rename(rename: &Rename) -> Option<io::Error>
-{
-    match std::fs::rename(rename.from.as_path(), rename.to.as_path()) {
-        Ok(_) => None,
-        Err(io_error) => Some(io_error),
+        Ok(path_w_lowercase_ext)
     }
 }
