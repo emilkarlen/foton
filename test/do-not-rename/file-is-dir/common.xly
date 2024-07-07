@@ -1,0 +1,26 @@
+[setup]
+
+dir . +=
+  {
+    dir dir-with-uppercase.EXT
+  }
+
+stdin = <<EOF
+dir-with-uppercase.EXT
+EOF
+
+[assert]
+
+exit-code == 0
+
+stdout is-empty
+
+stderr matches -full
+<<EOF
+dir-with-uppercase\.EXT: .*
+EOF
+
+dir-contents . : matches -full
+{
+    dir-with-uppercase.EXT : type dir
+}
