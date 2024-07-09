@@ -1,1 +1,3 @@
-Tool for managing photography files.
+Personal tool for managing my photography files.
+
+... and learning Rust.
