@@ -1,9 +1,9 @@
 use std::io::Stdin;
 use std::path::{Path, PathBuf};
 
-use crate::err::*;
-use crate::renamer::*;
-use crate::reporter::*;
+use super::err::*;
+use super::renamer::*;
+use super::reporter::*;
 
 
 pub fn rename_files(file_names_reader: Stdin, renamer: Renamer,reporter: &mut Reporter) -> std::process::ExitCode

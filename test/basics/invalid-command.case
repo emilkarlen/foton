@@ -1,6 +1,6 @@
 [act]
 
-@ BIN -y
+@ BIN invalid-command
 
 [assert]
 

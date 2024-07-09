@@ -6,6 +6,6 @@
 
 exit-code != 0
 
-stderr @[IS_NON_EMPTY_NON_EXCEPTION_OUTPUT]@
+stderr ! is-empty
 
 stdout is-empty

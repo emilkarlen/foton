@@ -1,12 +1,13 @@
 [conf]
 
-act-home = ../target/debug
+act-home = .
 
 [setup]
 
-def program BIN = @[EXACTLY_ACT_HOME]@/foton
+def program BIN = @[EXACTLY_ACT_HOME]@/../target/debug/foton
 
-def program BIN_EXE = @ BIN -x
-def program BIN_DRY = @ BIN
+def program HAS_LINE_SEQUENCE = -python -existing-file @[EXACTLY_ACT_HOME]@/utils/has-lines-sequence.py
 
-def file-matcher IS_EMPTY_FILE = type file && contents is-empty
+def text-matcher IS_NON_EMPTY_NON_EXCEPTION_OUTPUT =
+
+    ( ! is-empty ) && ( ! any line : contents matches 'panick' )

@@ -1,6 +1,7 @@
 use std::io;
-use crate::err::*;
 use std::path::PathBuf;
+
+use super::err::*;
 
 pub struct Rename
 {

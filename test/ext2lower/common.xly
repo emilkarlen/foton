@@ -1,0 +1,8 @@
+[setup]
+
+including ../common.xly
+
+def program BIN_EXE = @ BIN ext2lower -x
+def program BIN_DRY = @ BIN ext2lower
+
+def file-matcher IS_EMPTY_FILE = type file && contents is-empty

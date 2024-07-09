@@ -5,3 +5,10 @@
 [setup]
 
 including ../common.xly
+
+def text-matcher IS_HELP_OUTPUT = run @ HAS_LINE_SEQUENCE Usage Command Options
+
+def text-matcher IS_VERSION_OUTPUT = matches -full
+<<EOF
+.*[0-9]+\.[0-9]+\.[0-9]+
+EOF

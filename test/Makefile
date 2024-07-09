@@ -1,13 +1,14 @@
-.PHONY: all clean
+# See ext2lower for details
+
+.PHONY: all ind clean
 
 all: multi ind
 
 ind:
-	python3 cases-gen/genrator.py individual cases-gen single-path
+	make -C ext2lower ind
 
 multi:
-	python3 cases-gen/genrator.py all cases-gen multi
+	make -C ext2lower multi
 
 clean:
-	rm -rf multi
-	rm -rf single-path
+	make -C ext2lower clean

@@ -1,7 +1,4 @@
 [suites]
 
 basics
-failures
-do-not-rename
-single-path
-multi
+ext2lower

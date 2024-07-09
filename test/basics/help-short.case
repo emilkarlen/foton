@@ -7,4 +7,4 @@
 exit-code == 0
 
 stderr is-empty
-stdout ! is-empty
+stdout @[IS_HELP_OUTPUT]@

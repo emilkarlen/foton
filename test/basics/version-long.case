@@ -1,10 +1,11 @@
 [act]
 
-@ BIN --help
+@ BIN --version
 
 [assert]
 
 exit-code == 0
 
 stderr is-empty
-stdout @[IS_HELP_OUTPUT]@
+
+stdout @[IS_VERSION_OUTPUT]@

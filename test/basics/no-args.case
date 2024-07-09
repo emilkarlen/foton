@@ -1,0 +1,12 @@
+[act]
+
+@ BIN
+
+[assert]
+
+exit-code != 0
+
+stdout is-empty
+
+stderr ! is-empty
+stderr @[IS_NON_EMPTY_NON_EXCEPTION_OUTPUT]@

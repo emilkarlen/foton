@@ -1,10 +1,10 @@
 [act]
 
-@ BIN --help
+@ BIN -h
 
 [assert]
 
 exit-code == 0
 
 stderr is-empty
-stdout @[IS_HELP_OUTPUT]@
+stdout ! is-empty
