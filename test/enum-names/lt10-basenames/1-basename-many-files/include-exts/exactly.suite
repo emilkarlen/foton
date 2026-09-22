@@ -1,0 +1,34 @@
+[cases]
+
+*.case
+
+[setup]
+
+including ../common.xly
+
+[setup]
+
+def list EXT_FILTER_OPTS = -e 'ext1' -e 'ext3'
+
+[before-assert]
+
+def file-matcher DIR_W_RENAMED_FILES =
+  type dir && dir-contents matches -full
+    {
+      @[FN_A_E1_rn]@ : type file && contents equals @[FN_A_E1]@
+      @[FN_A_E2]@    : type file && contents equals @[FN_A_E2]@
+      @[FN_A_E3_rn]@ : type file && contents equals @[FN_A_E3]@
+      @[FN_A_E4]@    : type file && contents equals @[FN_A_E4]@
+    }
+
+[assert]
+
+exit-code == 0
+
+stderr is-empty
+
+stdout equals
+<<EOF
+@[DIR]@: @[FN_A_E1]@ -> @[FN_A_E1_rn]@
+@[DIR]@: @[FN_A_E3]@ -> @[FN_A_E3_rn]@
+EOF

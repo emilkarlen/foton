@@ -1,0 +1,38 @@
+[setup]
+
+including ../common.xly
+
+[before-assert]
+
+def file-matcher DIR_W_RENAMED_FILES =
+  type dir && dir-contents matches -full
+{
+  @[FN_01_ROOT_DIR_E1_rn]@ : type file && contents equals @[FN_01_ROOT_DIR_E1]@
+  @[FN_01_ROOT_DIR_E2_rn]@ : type file && contents equals @[FN_01_ROOT_DIR_E2]@
+  @[FN_01_ROOT_DIR_E3_rn]@ : type file && contents equals @[FN_01_ROOT_DIR_E3]@
+
+  @[SUB_DIR1]@ : type dir && dir-contents matches -full
+  {
+    @[FN_02_SUB_DIR1_E1_rn]@ : type file && contents equals @[FN_02_SUB_DIR1_E1]@
+    @[FN_02_SUB_DIR1_E2_rn]@ : type file && contents equals @[FN_02_SUB_DIR1_E2]@
+    @[FN_02_SUB_DIR1_E3_rn]@ : type file && contents equals @[FN_02_SUB_DIR1_E3]@
+    @[FN_03_SUB_DIR1_E1_rn]@ : type file && contents equals @[FN_03_SUB_DIR1_E1]@
+    @[FN_03_SUB_DIR1_E2_rn]@ : type file && contents equals @[FN_03_SUB_DIR1_E2]@
+  }
+
+  @[SUB_DIR2]@ : type dir && dir-contents matches -full
+  {
+    @[FN_04_SUB_DIR2_E1_rn]@ : type file && contents equals @[FN_04_SUB_DIR2_E1]@
+    @[FN_04_SUB_DIR2_E2_rn]@ : type file && contents equals @[FN_04_SUB_DIR2_E2]@
+  }
+
+  @[SUB_DIR3]@ : type dir && dir-contents matches -full
+  {
+    @[FN_05_SUB_DIR3_E1_rn]@ : type file && contents equals @[FN_05_SUB_DIR3_E1]@
+    @[FN_06_SUB_DIR3_E1_rn]@ : type file && contents equals @[FN_06_SUB_DIR3_E1]@
+    @[FN_07_SUB_DIR3_E1_rn]@ : type file && contents equals @[FN_07_SUB_DIR3_E1]@
+    @[FN_08_SUB_DIR3_E1_rn]@ : type file && contents equals @[FN_08_SUB_DIR3_E1]@
+    @[FN_09_SUB_DIR3_E1_rn]@ : type file && contents equals @[FN_09_SUB_DIR3_E1]@
+    @[FN_10_SUB_DIR3_E1_rn]@ : type file && contents equals @[FN_10_SUB_DIR3_E1]@
+  }
+}

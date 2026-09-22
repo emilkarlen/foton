@@ -1,0 +1,10 @@
+[act]
+
+@ BIN_DRY @[EXT_FILTER_OPTS]@ @[DIR]@
+
+[assert]
+
+dir-contents . : matches -full
+{
+  @[DIR]@ : @[DIR_W_ORIG_FILES]@
+}

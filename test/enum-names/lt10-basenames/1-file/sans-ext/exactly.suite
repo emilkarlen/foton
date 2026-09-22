@@ -1,0 +1,39 @@
+[cases]
+
+*.case
+
+[setup]
+
+including ../common.xly
+
+[setup]
+
+def string FN_A = 'file-name-sans-ext'
+
+def string DIR = 'the-dir'
+
+dir @[DIR]@ =
+{
+  file @[FN_A]@ = @[FN_A]@
+}
+
+[before-assert]
+
+def file-matcher DIR_W_ORIG_FILES =
+  type dir && dir-contents matches -full
+    {
+      @[FN_A]@ : type file && contents equals @[FN_A]@
+    }
+
+[assert]
+
+exit-code == 0
+
+stderr is-empty
+
+stdout is-empty
+
+dir-contents . : matches -full
+{
+  @[DIR]@ : @[DIR_W_ORIG_FILES]@
+}

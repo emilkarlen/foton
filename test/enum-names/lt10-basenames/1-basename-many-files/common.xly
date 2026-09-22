@@ -1,0 +1,38 @@
+[setup]
+
+including ../common.xly
+
+[setup]
+
+def string FN_A_E1   = 'aa.ext1'
+def string FN_A_E1_rn = '1.ext1'
+
+def string FN_A_E2   = 'aa.ext2'
+def string FN_A_E2_rn = '1.ext2'
+
+def string FN_A_E3   = 'aa.ext3'
+def string FN_A_E3_rn = '1.ext3'
+
+def string FN_A_E4   = 'aa.ext4'
+def string FN_A_E4_rn = '1.ext4'
+
+def string DIR = 'the-dir'
+
+dir @[DIR]@ =
+{
+  file @[FN_A_E1]@ = @[FN_A_E1]@
+  file @[FN_A_E2]@ = @[FN_A_E2]@
+  file @[FN_A_E3]@ = @[FN_A_E3]@
+  file @[FN_A_E4]@ = @[FN_A_E4]@
+}
+
+[before-assert]
+
+def file-matcher DIR_W_ORIG_FILES =
+  type dir && dir-contents matches -full
+    {
+      @[FN_A_E1]@ : type file && contents equals @[FN_A_E1]@
+      @[FN_A_E2]@ : type file && contents equals @[FN_A_E2]@
+      @[FN_A_E3]@ : type file && contents equals @[FN_A_E3]@
+      @[FN_A_E4]@ : type file && contents equals @[FN_A_E4]@
+    }

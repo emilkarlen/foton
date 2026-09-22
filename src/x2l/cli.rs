@@ -1,7 +1,7 @@
 use clap::builder::*;
 use clap::ArgMatches;
-
-use super::CliArgs;
+use crate::command::ExecutableCmd;
+use super::CmdConfig;
 
 pub fn sub_cmd(name: &'static str) -> Command
 {
@@ -16,11 +16,11 @@ pub fn sub_cmd(name: &'static str) -> Command
     )
 }
 
-pub fn parse_cli_args(args: &ArgMatches) -> CliArgs
+pub fn parse_cli_args(args: &ArgMatches) -> Box<dyn ExecutableCmd>
 {
-    CliArgs {
+    Box::from(CmdConfig {
         execute: args.get_flag(OPT_EXECUTE_ID),
-    }
+    })
 }
 
 const X2L_HELP_ABOUT: &str =

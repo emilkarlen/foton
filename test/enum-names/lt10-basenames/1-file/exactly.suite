@@ -1,0 +1,7 @@
+[suites]
+
+with-ext
+sans-ext
+do-not-rename-dirs
+non-recursive-should-not-rename-files-in-sub-dirs
+ok-to-rename-to-existing-names

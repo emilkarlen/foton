@@ -1,9 +1,11 @@
 mod cli;
 mod x2l;
+mod enum_names;
+mod command;
 
 fn main() -> std::process::ExitCode
 {
-    let args = cli::parse();
+    let cmd = cli::parse();
 
-    x2l::sub_cmd_main(&args)
+    cmd.execute()
 }

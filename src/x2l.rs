@@ -7,17 +7,20 @@ mod reporter;
 
 use self::renamer::Renamer;
 use self::reporter::Reporter;
+use super::command::ExecutableCmd;
 
-pub struct CliArgs
+pub struct CmdConfig
 {
     pub execute: bool,
 }
 
-pub fn sub_cmd_main(args: &CliArgs) -> std::process::ExitCode
+impl ExecutableCmd for CmdConfig
 {
-    let mut reporter = Reporter::new();
-    let renamer = Renamer::resolve(args.execute);
+    fn execute(&self) -> std::process::ExitCode
+    {
+        let mut reporter = Reporter::new();
+        let renamer = Renamer::resolve(self.execute);
 
-    rename::rename_files(std::io::stdin(), renamer,  &mut reporter)
-   
+        rename::rename_files(std::io::stdin(), renamer,  &mut reporter)
+    }
 }

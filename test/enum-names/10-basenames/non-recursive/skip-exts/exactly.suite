@@ -1,0 +1,55 @@
+[cases]
+
+*.case
+
+[setup]
+
+including ../common.xly
+
+[setup]
+
+def list EXT_FILTER_OPTS = -s 'ext3'
+
+[before-assert]
+
+def file-matcher DIR_W_RENAMED_FILES =
+  type dir && dir-contents matches -full
+    {
+      @[FN_01_E1_rn]@ : type file && contents equals @[FN_01_E1]@
+      @[FN_01_E2_rn]@ : type file && contents equals @[FN_01_E2]@
+      @[FN_01_E3]@    : type file && contents equals @[FN_01_E3]@
+
+      @[FN_02_E1_rn]@ : type file && contents equals @[FN_02_E1]@
+      @[FN_02_E2_rn]@ : type file && contents equals @[FN_02_E2]@
+
+      @[FN_03_E1_rn]@ : type file && contents equals @[FN_03_E1]@
+      @[FN_04_E1_rn]@ : type file && contents equals @[FN_04_E1]@
+      @[FN_05_E1_rn]@ : type file && contents equals @[FN_05_E1]@
+      @[FN_06_E1_rn]@ : type file && contents equals @[FN_06_E1]@
+      @[FN_07_E1_rn]@ : type file && contents equals @[FN_07_E1]@
+      @[FN_08_E1_rn]@ : type file && contents equals @[FN_08_E1]@
+      @[FN_09_E1_rn]@ : type file && contents equals @[FN_09_E1]@
+      @[FN_10_E1_rn]@ : type file && contents equals @[FN_10_E1]@
+    }
+
+[assert]
+
+exit-code == 0
+
+stderr is-empty
+
+stdout equals
+<<EOF
+@[DIR]@: @[FN_01_E1]@ -> @[FN_01_E1_rn]@
+@[DIR]@: @[FN_01_E2]@ -> @[FN_01_E2_rn]@
+@[DIR]@: @[FN_02_E1]@ -> @[FN_02_E1_rn]@
+@[DIR]@: @[FN_02_E2]@ -> @[FN_02_E2_rn]@
+@[DIR]@: @[FN_03_E1]@ -> @[FN_03_E1_rn]@
+@[DIR]@: @[FN_04_E1]@ -> @[FN_04_E1_rn]@
+@[DIR]@: @[FN_05_E1]@ -> @[FN_05_E1_rn]@
+@[DIR]@: @[FN_06_E1]@ -> @[FN_06_E1_rn]@
+@[DIR]@: @[FN_07_E1]@ -> @[FN_07_E1_rn]@
+@[DIR]@: @[FN_08_E1]@ -> @[FN_08_E1_rn]@
+@[DIR]@: @[FN_09_E1]@ -> @[FN_09_E1_rn]@
+@[DIR]@: @[FN_10_E1]@ -> @[FN_10_E1_rn]@
+EOF

@@ -1,0 +1,114 @@
+[setup]
+
+including ../common.xly
+
+[setup]
+
+def string FN_01_ROOT_DIR_E1    = 'alligator.ext1'
+def string FN_01_ROOT_DIR_E1_rn = '01.ext1'
+def string FN_01_ROOT_DIR_E2    = 'alligator.ext2'
+def string FN_01_ROOT_DIR_E2_rn = '01.ext2'
+def string FN_01_ROOT_DIR_E3    = 'alligator.ext3'
+def string FN_01_ROOT_DIR_E3_rn = '01.ext3'
+
+def string FN_02_SUB_DIR1_E1    = @[FN_01_ROOT_DIR_E1]@
+def string FN_02_SUB_DIR1_E1_rn = '02.ext1'
+def string FN_02_SUB_DIR1_E2    = @[FN_01_ROOT_DIR_E2]@
+def string FN_02_SUB_DIR1_E2_rn = '02.ext2'
+def string FN_02_SUB_DIR1_E3    = @[FN_01_ROOT_DIR_E3]@
+def string FN_02_SUB_DIR1_E3_rn = '02.ext3'
+
+def string FN_03_SUB_DIR1_E1    = 'bear.ext1'
+def string FN_03_SUB_DIR1_E1_rn = '03.ext1'
+def string FN_03_SUB_DIR1_E2    = 'bear.ext2'
+def string FN_03_SUB_DIR1_E2_rn = '03.ext2'
+
+def string FN_04_SUB_DIR2_E1    = @[FN_03_SUB_DIR1_E1]@
+def string FN_04_SUB_DIR2_E1_rn = '04.ext1'
+def string FN_04_SUB_DIR2_E2    = @[FN_03_SUB_DIR1_E2]@
+def string FN_04_SUB_DIR2_E2_rn = '04.ext2'
+
+def string FN_05_SUB_DIR3_E1    = 'elephant.ext1'
+def string FN_05_SUB_DIR3_E1_rn = '05.ext1'
+def string FN_06_SUB_DIR3_E1    = 'fish.ext1'
+def string FN_06_SUB_DIR3_E1_rn = '06.ext1'
+def string FN_07_SUB_DIR3_E1    = 'giraffe.ext1'
+def string FN_07_SUB_DIR3_E1_rn = '07.ext1'
+def string FN_08_SUB_DIR3_E1    = 'hen.ext1'
+def string FN_08_SUB_DIR3_E1_rn = '08.ext1'
+def string FN_09_SUB_DIR3_E1    = 'indian palm squirrel.ext1'
+def string FN_09_SUB_DIR3_E1_rn = '09.ext1'
+def string FN_10_SUB_DIR3_E1    = 'japanese beetle.ext1'
+def string FN_10_SUB_DIR3_E1_rn = '10.ext1'
+
+def string SUB_DIR1 = 'the-1st-sub-dir'
+def string SUB_DIR2 = 'the-2nd-sub-dir'
+def string SUB_DIR3 = 'the-3rd-sub-dir'
+
+dir @[DIR]@ =
+{
+  file @[FN_01_ROOT_DIR_E1]@ = @[FN_01_ROOT_DIR_E1]@
+  file @[FN_01_ROOT_DIR_E2]@ = @[FN_01_ROOT_DIR_E2]@
+  file @[FN_01_ROOT_DIR_E3]@ = @[FN_01_ROOT_DIR_E3]@
+
+  dir @[SUB_DIR1]@ =
+  {
+  file @[FN_02_SUB_DIR1_E1]@ = @[FN_02_SUB_DIR1_E1]@
+  file @[FN_02_SUB_DIR1_E2]@ = @[FN_02_SUB_DIR1_E2]@
+  file @[FN_02_SUB_DIR1_E3]@ = @[FN_02_SUB_DIR1_E3]@
+
+  file @[FN_03_SUB_DIR1_E1]@ = @[FN_03_SUB_DIR1_E1]@
+  file @[FN_03_SUB_DIR1_E2]@ = @[FN_03_SUB_DIR1_E2]@
+  }
+
+  dir @[SUB_DIR2]@ =
+  {
+  file @[FN_04_SUB_DIR2_E1]@ = @[FN_04_SUB_DIR2_E1]@
+  file @[FN_04_SUB_DIR2_E2]@ = @[FN_04_SUB_DIR2_E2]@
+  }
+
+  dir @[SUB_DIR3]@ =
+  {
+  file @[FN_05_SUB_DIR3_E1]@ = @[FN_05_SUB_DIR3_E1]@
+  file @[FN_06_SUB_DIR3_E1]@ = @[FN_06_SUB_DIR3_E1]@
+  file @[FN_07_SUB_DIR3_E1]@ = @[FN_07_SUB_DIR3_E1]@
+  file @[FN_08_SUB_DIR3_E1]@ = @[FN_08_SUB_DIR3_E1]@
+  file @[FN_09_SUB_DIR3_E1]@ = @[FN_09_SUB_DIR3_E1]@
+  file @[FN_10_SUB_DIR3_E1]@ = @[FN_10_SUB_DIR3_E1]@
+  }
+}
+
+[before-assert]
+
+def file-matcher DIR_W_ORIG_FILES =
+  type dir && dir-contents matches -full
+{
+  @[FN_01_ROOT_DIR_E1]@ : type file && contents equals @[FN_01_ROOT_DIR_E1]@
+  @[FN_01_ROOT_DIR_E2]@ : type file && contents equals @[FN_01_ROOT_DIR_E2]@
+  @[FN_01_ROOT_DIR_E3]@ : type file && contents equals @[FN_01_ROOT_DIR_E3]@
+
+  @[SUB_DIR1]@ : type dir && dir-contents matches -full
+  {
+    @[FN_02_SUB_DIR1_E1]@ : type file && contents equals @[FN_02_SUB_DIR1_E1]@
+    @[FN_02_SUB_DIR1_E2]@ : type file && contents equals @[FN_02_SUB_DIR1_E2]@
+    @[FN_02_SUB_DIR1_E3]@ : type file && contents equals @[FN_02_SUB_DIR1_E3]@
+    @[FN_03_SUB_DIR1_E1]@ : type file && contents equals @[FN_03_SUB_DIR1_E1]@
+    @[FN_03_SUB_DIR1_E2]@ : type file && contents equals @[FN_03_SUB_DIR1_E2]@
+  }
+
+  @[SUB_DIR2]@ : type dir && dir-contents matches -full
+  {
+    @[FN_04_SUB_DIR2_E1]@ : type file && contents equals @[FN_04_SUB_DIR2_E1]@
+    @[FN_04_SUB_DIR2_E2]@ : type file && contents equals @[FN_04_SUB_DIR2_E2]@
+  }
+
+  @[SUB_DIR3]@ : type dir && dir-contents matches -full
+  {
+    @[FN_05_SUB_DIR3_E1]@ : type file && contents equals @[FN_05_SUB_DIR3_E1]@
+    @[FN_06_SUB_DIR3_E1]@ : type file && contents equals @[FN_06_SUB_DIR3_E1]@
+    @[FN_07_SUB_DIR3_E1]@ : type file && contents equals @[FN_07_SUB_DIR3_E1]@
+    @[FN_08_SUB_DIR3_E1]@ : type file && contents equals @[FN_08_SUB_DIR3_E1]@
+    @[FN_09_SUB_DIR3_E1]@ : type file && contents equals @[FN_09_SUB_DIR3_E1]@
+    @[FN_10_SUB_DIR3_E1]@ : type file && contents equals @[FN_10_SUB_DIR3_E1]@
+  }
+}

@@ -1,0 +1,8 @@
+[setup]
+
+including ../common.xly
+
+[setup]
+
+
+def string DIR = 'the-dir'

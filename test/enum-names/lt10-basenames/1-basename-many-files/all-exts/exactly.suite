@@ -1,0 +1,32 @@
+[cases]
+
+*.case
+
+[setup]
+
+including ../common.xly
+
+[before-assert]
+
+def file-matcher DIR_W_RENAMED_FILES =
+  type dir && dir-contents matches -full
+    {
+      @[FN_A_E1_rn]@ : type file && contents equals @[FN_A_E1]@
+      @[FN_A_E2_rn]@ : type file && contents equals @[FN_A_E2]@
+      @[FN_A_E3_rn]@ : type file && contents equals @[FN_A_E3]@
+      @[FN_A_E4_rn]@ : type file && contents equals @[FN_A_E4]@
+    }
+
+[assert]
+
+exit-code == 0
+
+stderr is-empty
+
+stdout equals
+<<EOF
+@[DIR]@: @[FN_A_E1]@ -> @[FN_A_E1_rn]@
+@[DIR]@: @[FN_A_E2]@ -> @[FN_A_E2_rn]@
+@[DIR]@: @[FN_A_E3]@ -> @[FN_A_E3_rn]@
+@[DIR]@: @[FN_A_E4]@ -> @[FN_A_E4_rn]@
+EOF

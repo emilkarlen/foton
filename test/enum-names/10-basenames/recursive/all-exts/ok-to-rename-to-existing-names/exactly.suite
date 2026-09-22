@@ -1,0 +1,40 @@
+[cases]
+
+*.case
+
+[setup]
+
+including ../common.xly
+
+run @ BIN_EXE -r @[DIR]@
+
+[assert]
+
+exit-code == 0
+
+stderr is-empty
+
+stdout equals
+<<EOF
+@[DIR]@: @[FN_01_ROOT_DIR_E1_rn]@ -> @[FN_01_ROOT_DIR_E1_rn]@
+@[DIR]@: @[FN_01_ROOT_DIR_E2_rn]@ -> @[FN_01_ROOT_DIR_E2_rn]@
+@[DIR]@: @[FN_01_ROOT_DIR_E3_rn]@ -> @[FN_01_ROOT_DIR_E3_rn]@
+@[DIR]@/@[SUB_DIR1]@: @[FN_02_SUB_DIR1_E1_rn]@ -> @[FN_02_SUB_DIR1_E1_rn]@
+@[DIR]@/@[SUB_DIR1]@: @[FN_02_SUB_DIR1_E2_rn]@ -> @[FN_02_SUB_DIR1_E2_rn]@
+@[DIR]@/@[SUB_DIR1]@: @[FN_02_SUB_DIR1_E3_rn]@ -> @[FN_02_SUB_DIR1_E3_rn]@
+@[DIR]@/@[SUB_DIR1]@: @[FN_03_SUB_DIR1_E1_rn]@ -> @[FN_03_SUB_DIR1_E1_rn]@
+@[DIR]@/@[SUB_DIR1]@: @[FN_03_SUB_DIR1_E2_rn]@ -> @[FN_03_SUB_DIR1_E2_rn]@
+@[DIR]@/@[SUB_DIR2]@: @[FN_04_SUB_DIR2_E1_rn]@ -> @[FN_04_SUB_DIR2_E1_rn]@
+@[DIR]@/@[SUB_DIR2]@: @[FN_04_SUB_DIR2_E2_rn]@ -> @[FN_04_SUB_DIR2_E2_rn]@
+@[DIR]@/@[SUB_DIR3]@: @[FN_05_SUB_DIR3_E1_rn]@ -> @[FN_05_SUB_DIR3_E1_rn]@
+@[DIR]@/@[SUB_DIR3]@: @[FN_06_SUB_DIR3_E1_rn]@ -> @[FN_06_SUB_DIR3_E1_rn]@
+@[DIR]@/@[SUB_DIR3]@: @[FN_07_SUB_DIR3_E1_rn]@ -> @[FN_07_SUB_DIR3_E1_rn]@
+@[DIR]@/@[SUB_DIR3]@: @[FN_08_SUB_DIR3_E1_rn]@ -> @[FN_08_SUB_DIR3_E1_rn]@
+@[DIR]@/@[SUB_DIR3]@: @[FN_09_SUB_DIR3_E1_rn]@ -> @[FN_09_SUB_DIR3_E1_rn]@
+@[DIR]@/@[SUB_DIR3]@: @[FN_10_SUB_DIR3_E1_rn]@ -> @[FN_10_SUB_DIR3_E1_rn]@
+EOF
+
+dir-contents . : matches -full
+{
+  @[DIR]@ : @[DIR_W_RENAMED_FILES]@
+}
