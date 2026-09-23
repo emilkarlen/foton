@@ -1,0 +1,45 @@
+[assert]
+
+exit-code == 0
+
+stderr is-empty
+
+
+[setup]
+
+including ../common.xly
+
+def string SRC_DIR = .the-dir
+
+def files-source PLAIN_FILES_E1 =
+{
+  file e1-1.ext1
+  file e1-1.pre-ext.ext1
+  file e1-2.ext1
+  file e1-2.pre-ext.ext1
+}
+
+def files-source PLAIN_FILES_E2 =
+{
+  file e2-1.extension2
+  file e2-1.pre-ext.extension2
+}
+
+def files-source PLAIN_FILES_E3 =
+{
+  file e3-1.ext3
+  file e3-1.pre-ext.ext3
+}
+
+dir @[SRC_DIR]@ =
+{
+  # would like to be able to give @[PLAIN_FILES_E1]@ here, instead of having to adding it in a separate statement
+  dir .sub-1  = @[PLAIN_FILES_E1]@
+  dir sub-2   = @[PLAIN_FILES_E1]@
+  dir sub-2  += @[PLAIN_FILES_E2]@
+  dir sub-2  += @[PLAIN_FILES_E3]@
+}
+
+dir @[SRC_DIR]@ += @[PLAIN_FILES_E1]@
+dir @[SRC_DIR]@ += @[PLAIN_FILES_E2]@
+dir @[SRC_DIR]@ += @[PLAIN_FILES_E3]@

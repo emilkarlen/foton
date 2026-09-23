@@ -1,0 +1,12 @@
+[act]
+
+@ BIN_EXE -r -n -s @[SRC_DIR]@
+
+[assert]
+
+stdout equals
+<<EOF
+ext3        4
+extension2  4
+ext1       12
+EOF

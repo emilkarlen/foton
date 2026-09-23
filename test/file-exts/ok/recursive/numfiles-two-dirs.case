@@ -1,0 +1,18 @@
+[act]
+
+@ BIN_EXE -r -n @[SRC_DIR]@ @[SRC_DIR_2]@
+
+[setup]
+
+def string SRC_DIR_2 = the-other-dir
+
+dir @[SRC_DIR_2]@ = @[PLAIN_FILES_E1]@
+
+[assert]
+
+stdout equals
+<<EOF
+ext1       16
+ext3        4
+extension2  4
+EOF
