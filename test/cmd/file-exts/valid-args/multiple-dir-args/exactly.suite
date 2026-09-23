@@ -1,0 +1,21 @@
+[cases]
+
+*.case
+
+[setup]
+
+including ../common.xly
+
+def string SRC_DIR_2 = the-src-dir-2
+
+dir @[SRC_DIR_2]@ =
+{
+  file s2.ext1
+  file s2.only-in-s2_1
+  dir d =
+  {
+    file s2.ext1
+    file s2.only-in-s2_1
+    file s2.only-in-s2_2
+  }
+}

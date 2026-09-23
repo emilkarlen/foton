@@ -1,0 +1,5 @@
+[setup]
+
+including ../common.xly
+
+def program BIN_EXE = @ BIN file-exts

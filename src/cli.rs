@@ -2,6 +2,7 @@ use clap::builder::*;
 use crate::command::ExecutableCmd;
 use crate::x2l::cli as x2l_cli;
 use crate::enum_names::cli as enum_cli;
+use crate::file_exts::cli as fe_cli;
 
 pub fn parse() -> Box<dyn ExecutableCmd>
 {
@@ -10,6 +11,7 @@ pub fn parse() -> Box<dyn ExecutableCmd>
     match name {
         SUB_CMD_EXT2LOWER => x2l_cli::parse_cli_args(args),
         SUB_CMD_ENUM => enum_cli::parse_cli_args(args),
+        SUB_CMD_FILE_EXTS => fe_cli::parse_cli_args(args),
         n => { panic!("unknown subcommand: {}", n) }
     }
 }
@@ -22,6 +24,7 @@ const HELP_ABOUT: &str = "Tool for managing my photography files.";
 
 const SUB_CMD_EXT2LOWER: &str = "ext2lower";
 const SUB_CMD_ENUM: &str = "enum-names";
+const SUB_CMD_FILE_EXTS: &str = "file-exts";
 
 fn command() -> Command
 {
@@ -30,5 +33,6 @@ fn command() -> Command
         .about(HELP_ABOUT)
         .subcommand(x2l_cli::sub_cmd(SUB_CMD_EXT2LOWER))
         .subcommand(enum_cli::sub_cmd(SUB_CMD_ENUM))
+        .subcommand(fe_cli::sub_cmd(SUB_CMD_FILE_EXTS))
         .subcommand_required(true)
 }

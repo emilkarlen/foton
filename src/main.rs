@@ -1,7 +1,9 @@
 mod cli;
 mod x2l;
 mod enum_names;
+mod file_exts;
 mod command;
+mod utils;
 
 fn main() -> std::process::ExitCode
 {

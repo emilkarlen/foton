@@ -1,0 +1,15 @@
+[act]
+
+@ BIN_CMD -r -n -N @[SRC_DIR]@ @[SRC_DIR_2]@
+
+[assert]
+
+stdout equals
+<<EOF
+ext1         14
+ext3          4
+extension2    4
+only-in-s2_1  2
+only-in-s2_2  1
+             25
+EOF

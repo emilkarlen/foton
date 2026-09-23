@@ -1,0 +1,11 @@
+[act]
+
+@ BIN_EXE non-existing-dir
+
+[assert]
+
+exit-code == 2
+
+stderr ! is-empty
+
+stdout is-empty
