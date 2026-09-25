@@ -1,0 +1,7 @@
+[act]
+
+@ BIN_CMD dir-arg superfluous-arg
+
+[setup]
+
+dir dir-arg
