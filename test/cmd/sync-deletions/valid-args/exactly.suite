@@ -1,4 +1,5 @@
 [suites]
 
-invalid-syntax
-ok
+single-file-in-dst-no-sub-dirs
+# TODO multiple-files-in-dst--no-sub-dirs
+# TODO multiple-files-in-dst--sub-dirs

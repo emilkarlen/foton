@@ -1,0 +1,20 @@
+[act]
+
+@ BIN_DRY -e ext src dst
+
+[assert]
+
+stdout is-empty
+
+[setup]
+
+dir src =
+{
+ file a.ext
+ file b.ext
+}
+
+dir dst =
+{
+  file a.ext
+}

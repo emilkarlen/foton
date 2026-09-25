@@ -1,8 +1,9 @@
 pub mod cli;
+pub mod main;
 
 use crate::command::ExecutableCmd;
 use crate::common::arg_validation;
-use crate::common::read_files::ReadConfig;
+use crate::common::read_files::{PathWithName, ReadConfig};
 use std::io;
 use std::path::PathBuf;
 
@@ -23,7 +24,8 @@ impl ExecutableCmd for CmdConfig
     }
     fn with_valid_args(&self) -> io::Result<()>
     {
-        println!("TODO");
-        Ok(())
+        let dir_src = PathWithName::from(self.dir_src.clone()).unwrap();
+        let dir_dst = PathWithName::from(self.dir_dst.clone()).unwrap();
+        main::with_valid_args(self.execute, dir_src, dir_dst, &self.read_config)
     }
 }

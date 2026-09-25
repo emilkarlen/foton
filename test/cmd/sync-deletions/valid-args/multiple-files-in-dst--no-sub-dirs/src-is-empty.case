@@ -1,0 +1,21 @@
+[act]
+
+@ BIN_DRY src-dir dst-dir
+
+[assert]
+
+stdout equals
+<<EOF
+rm 'dst-dir/a'.*
+rm 'dst-dir/b'.*
+EOF
+
+[setup]
+
+dir src-dir
+
+dir dst-dir =
+{
+  file a.ext1
+  file b.ext2
+}

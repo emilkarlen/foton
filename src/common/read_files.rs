@@ -1,4 +1,3 @@
-use crate::common::dir_contents::DirContents;
 use crate::common::ext_filter::ExtensionsFilter;
 use crate::utils::from_os_str;
 use std::collections::HashMap;
@@ -8,8 +7,35 @@ use std::fs::FileType;
 use std::io;
 use std::path::{Path, PathBuf};
 
+
+pub struct PathWithName
+{
+    pub path: PathBuf,
+    pub name: OsString,
+}
+
+impl PathWithName
+{
+    pub fn from(path: PathBuf) -> Option<PathWithName>
+    {
+        let name = path.file_name()?;
+        let nc = OsString::from(name);
+        Some(PathWithName { path, name: nc})
+    }
+}
+
+pub struct DirContents<FILES>
+{
+    pub dir: PathWithName,
+    pub sub_dirs: Vec<DirContents<FILES>>,
+    pub files: FILES,
+}
 pub type FileNameStem = OsString;
 pub type  Extension = OsString;
+
+pub type FileNameStems = HashMap<FileNameStem, Vec<Extension>>;
+
+pub type DirPath = PathBuf;
 
 pub struct FnInfo
 {
@@ -35,9 +61,9 @@ pub struct ReadConfig
     pub extensions_filter: Box<dyn ExtensionsFilter>,
 }
 
-pub fn group_by_file_name_stem(dir: PathBuf, config: &ReadConfig) -> io::Result<DirContents<HashMap<FileNameStem, Vec<Extension>>>>
+pub fn group_by_file_name_stem(dir: PathWithName, config: &ReadConfig) -> io::Result<DirContents<HashMap<FileNameStem, Vec<Extension>>>>
 {
-    let (sub_dir_names, files) = read_files_non_rec(&dir, config)?;
+    let (sub_dir_names, files) = read_files_non_rec(&dir.path, config)?;
     let mut sub_dir_names = sub_dir_names;
     let mut sub_dirs = Vec::with_capacity(sub_dir_names.len());
     if config.recursive {
@@ -49,9 +75,9 @@ pub fn group_by_file_name_stem(dir: PathBuf, config: &ReadConfig) -> io::Result<
     Ok(DirContents{dir, sub_dirs, files, })
 }
 
-fn read_files_non_rec(dir: &Path, config: &ReadConfig) -> io::Result<(Vec<PathBuf>, HashMap<FileNameStem, Vec<Extension>>)>
+fn read_files_non_rec(dir: &Path, config: &ReadConfig) -> io::Result<(Vec<PathWithName>, HashMap<FileNameStem, Vec<Extension>>)>
 {
-    let mut sub_dirs: Vec<PathBuf> = Vec::new();
+    let mut sub_dirs: Vec<PathWithName> = Vec::new();
     let mut files: HashMap<OsString, Vec<OsString>> = HashMap::new();
     let entries = dir.read_dir()?;
     for mb_entry in entries {
@@ -60,12 +86,10 @@ fn read_files_non_rec(dir: &Path, config: &ReadConfig) -> io::Result<(Vec<PathBu
         let mb_dof = DirOrFile::from(&f_type, &entry);
         if let Some(dof) = mb_dof {
             match dof {
-                DirOrFile::ADir(path) => {
-                    if let Some(file_name) = path.file_name() {
-                        if config.include_hidden_sub_dirs || !crate::common::fs::is_hidden(&file_name) {
-                            sub_dirs.push(path)
+                DirOrFile::ADir(pwn) => {
+                        if config.include_hidden_sub_dirs || !crate::common::fs::is_hidden(&pwn.name) {
+                            sub_dirs.push(pwn)
                         }
-                    }
                 }
                 DirOrFile::AFile(se) => {
                     if !config.extensions_filter.accepts_os(&se.ext_os) {
@@ -91,7 +115,7 @@ fn read_files_non_rec(dir: &Path, config: &ReadConfig) -> io::Result<(Vec<PathBu
 
 enum DirOrFile
 {
-    ADir(PathBuf),
+    ADir(PathWithName),
     AFile(StemAndExt),
 }
 
@@ -100,7 +124,8 @@ impl DirOrFile
     fn from(f_type: &FileType, entry: &fs::DirEntry) -> Option<DirOrFile>
     {
         if f_type.is_dir() {
-            Some(DirOrFile::ADir(entry.path()))
+            let pwn = PathWithName::from(entry.path())?;
+            Some(DirOrFile::ADir(pwn))
         }
         else if f_type.is_file() {
             let x = StemAndExt::from(entry)?;

@@ -1,10 +1,10 @@
 use super::CmdConfig;
 use crate::command::ExecutableCmd;
 use crate::common::ext_filter_cli;
+use crate::common::read_files::ReadConfig;
 use clap::builder::*;
 use clap::ArgMatches;
-use std::path::{Path, PathBuf};
-use crate::common::read_files::ReadConfig;
+use std::path::PathBuf;
 
 pub fn sub_cmd(name: &'static str) -> Command
 {
@@ -51,7 +51,7 @@ pub fn parse_cli_args(args: &ArgMatches) -> Box<dyn ExecutableCmd>
         dir_src: PathBuf::from(&dir_src),
         dir_dst: PathBuf::from(&dir_dst),
         read_config: ReadConfig {
-            recursive: args.get_flag(OPT_RECURSIVE_ID),
+            recursive: true, // args.get_flag(OPT_RECURSIVE_ID),
             include_hidden_sub_dirs: !args.get_flag(OPT_IGNORE_HIDDEN_SUB_DIRS_ID),
             extensions_filter: ext_filter_cli::parse_extensions_filter(args),
         }
