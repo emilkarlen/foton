@@ -1,9 +1,9 @@
+use crate::common::fs;
+use crate::file_exts::config::ReadConfig;
 use std::collections::HashMap;
-use std::ffi::{OsStr, OsString};
+use std::ffi::OsString;
 use std::io;
 use std::path::{Path, PathBuf};
-use crate::file_exts::config::ReadConfig;
-use crate::utils;
 
 pub fn execute(dirs: &Vec<Box<Path>>, config: &ReadConfig) -> io::Result<HashMap<OsString, usize>> {
     let mut collection: HashMap<OsString, usize> = HashMap::new();
@@ -48,7 +48,7 @@ fn read_files(dir: &Path, config: &ReadConfig, collection: &mut HashMap<OsString
         let f_type = entry.file_type()?;
         if f_type.is_dir() {
             if let Some(name) = path.file_name() {
-                if config.include_hidden_sub_dirs || !is_hidden(name) {
+                if config.include_hidden_sub_dirs || !fs::is_hidden(name) {
                 sub_dirs.push(path);
                     }
             }
@@ -64,14 +64,4 @@ fn read_files(dir: &Path, config: &ReadConfig, collection: &mut HashMap<OsString
         }
     }
     Ok(())
-}
-
-fn is_hidden(name: &OsStr) -> bool
-{
-    if let Some(ch) = utils::from_os_str(name).chars().next() {
-        ch == '.'
-    } else {
-        // string is empty
-        true
-    }
 }

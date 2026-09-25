@@ -29,12 +29,13 @@ impl FnInfo
 pub struct ReadConfig
 {
     pub recursive: bool,
+    pub include_hidden_sub_dirs: bool,
     pub extensions_filter: Box<dyn ExtensionsFilter>,
 }
 
 pub fn rev_sorted_file_infos(dir: PathBuf, config: &ReadConfig) -> io::Result<DirContents<FnInfo>>
 {
-    let (sub_dir_names, files) = rev_sorted_file_infos_non_rec(&dir, config.extensions_filter.deref())?;
+    let (sub_dir_names, files) = rev_sorted_file_infos_non_rec(&dir, config.include_hidden_sub_dirs, config.extensions_filter.deref())?;
     let mut sub_dir_names = sub_dir_names;
     let mut sub_dirs = Vec::with_capacity(sub_dir_names.len());
     if config.recursive {
@@ -45,9 +46,9 @@ pub fn rev_sorted_file_infos(dir: PathBuf, config: &ReadConfig) -> io::Result<Di
     }
     Ok(DirContents{dir, sub_dirs, files, })
 }
-fn rev_sorted_file_infos_non_rec(dir: &PathBuf, extensions_filter: &dyn ExtensionsFilter) -> io::Result<(Vec<PathBuf>, Vec<FnInfo>)>
+fn rev_sorted_file_infos_non_rec(dir: &PathBuf, include_hidden_sub_dirs: bool, extensions_filter: &dyn ExtensionsFilter) -> io::Result<(Vec<PathBuf>, Vec<FnInfo>)>
 {
-    let (sub_dirs, files) = read_files(dir, extensions_filter)?;
+    let (sub_dirs, files) = read_files(dir, include_hidden_sub_dirs, extensions_filter)?;
     let mut sorted_sub_dirs = sub_dirs;
     sorted_sub_dirs.sort();
     let mut rev_sorted_fnis: Vec<_> = files.into_iter().map(FnInfo::from).collect();
@@ -55,7 +56,7 @@ fn rev_sorted_file_infos_non_rec(dir: &PathBuf, extensions_filter: &dyn Extensio
     Ok((sorted_sub_dirs, rev_sorted_fnis))
 }
 
-fn read_files(dir: &Path, extensions_filter: &dyn ExtensionsFilter) -> io::Result<(Vec<PathBuf>, HashMap<OsString, Vec<OsString>>)>
+fn read_files(dir: &Path, include_hidden_sub_dirs: bool, extensions_filter: &dyn ExtensionsFilter) -> io::Result<(Vec<PathBuf>, HashMap<OsString, Vec<OsString>>)>
 {
     let mut sub_dirs: Vec<PathBuf> = Vec::new();
     let mut files: HashMap<OsString, Vec<OsString>> = HashMap::new();
@@ -66,7 +67,13 @@ fn read_files(dir: &Path, extensions_filter: &dyn ExtensionsFilter) -> io::Resul
         let mb_dof = DirOrFile::from(&f_type, &entry);
         if let Some(dof) = mb_dof {
             match dof {
-                DirOrFile::ADir(path) => { sub_dirs.push(path) }
+                DirOrFile::ADir(path) => {
+                    if let Some(file_name) = path.file_name() {
+                        if include_hidden_sub_dirs || !crate::common::fs::is_hidden(&file_name) {
+                            sub_dirs.push(path)
+                        }
+                    }
+                }
                 DirOrFile::AFile(se) => {
                     if !extensions_filter.accepts_os(&se.ext_os) {
                         continue;

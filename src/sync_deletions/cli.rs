@@ -4,6 +4,7 @@ use crate::common::ext_filter_cli;
 use clap::builder::*;
 use clap::ArgMatches;
 use std::path::Path;
+use crate::common::read_files::ReadConfig;
 
 pub fn sub_cmd(name: &'static str) -> Command
 {
@@ -15,6 +16,10 @@ pub fn sub_cmd(name: &'static str) -> Command
         .short('r')
         .action(ArgAction::SetTrue)
         .help(OPT_RECURSIVE_HELP);
+    let opt_ignore_hidden_sub_dirs = Arg::new(OPT_IGNORE_HIDDEN_SUB_DIRS_ID)
+        .short('d')
+        .action(ArgAction::SetTrue)
+        .help(OPT_IGNORE_HIDDEN_SUB_DIRS_HELP);
     let arg_dir_src = Arg::new(OPT_DIR_SRC_ID)
         .required(true)
         .action(ArgAction::Set)
@@ -31,6 +36,7 @@ pub fn sub_cmd(name: &'static str) -> Command
         .after_help(HELP_AFTER_OPTIONS)
         .arg(opt_execute)
         .arg(opt_recursive)
+        .arg(opt_ignore_hidden_sub_dirs)
         .arg(arg_dir_src)
         .arg(arg_dir_dst)
 }
@@ -42,10 +48,13 @@ pub fn parse_cli_args(args: &ArgMatches) -> Box<dyn ExecutableCmd>
 
     Box::from(CmdConfig {
         execute: args.get_flag(OPT_EXECUTE_ID),
-        recursive: args.get_flag(OPT_RECURSIVE_ID),
         dir_src: Box::from(Path::new(&dir_src)),
         dir_dst: Box::from(Path::new(&dir_dst)),
-        extensions_filter: ext_filter_cli::parse_extensions_filter(args),
+        read_config: ReadConfig {
+            recursive: args.get_flag(OPT_RECURSIVE_ID),
+            include_hidden_sub_dirs: !args.get_flag(OPT_IGNORE_HIDDEN_SUB_DIRS_ID),
+            extensions_filter: ext_filter_cli::parse_extensions_filter(args),
+        }
     })
 }
 
@@ -66,3 +75,5 @@ const OPT_DIR_SRC_HELP: &str = "The directory where files have been deleted";
 const OPT_DIR_DST_HELP: &str = "The directory in which to deletions files";
 const OPT_EXECUTE_SHORT: char = 'x';
 const OPT_EXECUTE_HELP: &str = "Do execute the action (default is to run dry)";
+const OPT_IGNORE_HIDDEN_SUB_DIRS_ID: &str = "hidden-sub-dirs";
+const OPT_IGNORE_HIDDEN_SUB_DIRS_HELP: &str = "Ignore files in hidden sub directories";
