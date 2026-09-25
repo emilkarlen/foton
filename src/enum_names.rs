@@ -9,7 +9,7 @@ mod config;
 
 use crate::command::ExecutableCmd;
 use crate::common::arg_validation;
-use crate::enum_names::common::DirContents;
+use crate::common::dir_contents::DirContents;
 use crate::enum_names::rename_files::execute;
 use common::Rename;
 use config::ReadConfig;

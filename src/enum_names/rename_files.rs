@@ -1,9 +1,9 @@
-use crate::enum_names::common::{DirContents, Rename};
+use crate::common::dir_contents::DirContents;
+use crate::enum_names::common::Rename;
 use crate::enum_names::report::report_rename;
 use std::fs;
 use std::io;
 use std::path::Path;
-
 
 const TMP_DIR_NAME: &str = concat!(env!("CARGO_BIN_NAME"), "-enum-names-tmp-dir");
 

@@ -1,5 +1,3 @@
-use super::common::FnInfo;
-use super::config::ReadConfig;
 use crate::common::dir_contents::DirContents;
 use crate::common::ext_filter::ExtensionsFilter;
 use crate::utils::from_os_str;
@@ -10,6 +8,29 @@ use std::fs::FileType;
 use std::io;
 use std::ops::Deref;
 use std::path::{Path, PathBuf};
+
+pub struct FnInfo
+{
+    pub stem: OsString,
+    pub extensions: Vec<OsString>,
+}
+
+impl FnInfo
+{
+    pub fn from(x: (OsString, Vec<OsString>)) -> FnInfo
+    {
+        FnInfo {
+            stem: x.0,
+            extensions: x.1,
+        }
+    }
+}
+
+pub struct ReadConfig
+{
+    pub recursive: bool,
+    pub extensions_filter: Box<dyn ExtensionsFilter>,
+}
 
 pub fn rev_sorted_file_infos(dir: PathBuf, config: &ReadConfig) -> io::Result<DirContents<FnInfo>>
 {
@@ -34,10 +55,10 @@ fn rev_sorted_file_infos_non_rec(dir: &PathBuf, extensions_filter: &dyn Extensio
     Ok((sorted_sub_dirs, rev_sorted_fnis))
 }
 
-fn read_files(dir: &Path, extensions_filter: &dyn ExtensionsFilter) -> io::Result<(Vec<PathBuf>, HashMap<String, Vec<String>>)>
+fn read_files(dir: &Path, extensions_filter: &dyn ExtensionsFilter) -> io::Result<(Vec<PathBuf>, HashMap<OsString, Vec<OsString>>)>
 {
     let mut sub_dirs: Vec<PathBuf> = Vec::new();
-    let mut files: HashMap<String, Vec<String>> = HashMap::new();
+    let mut files: HashMap<OsString, Vec<OsString>> = HashMap::new();
     let entries = dir.read_dir()?;
     for mb_entry in entries {
         let entry = mb_entry?;
@@ -50,12 +71,12 @@ fn read_files(dir: &Path, extensions_filter: &dyn ExtensionsFilter) -> io::Resul
                     if !extensions_filter.accepts_os(&se.ext_os) {
                         continue;
                     }
-                    match files.get_mut(&se.stem) {
+                    match files.get_mut(&se.stem_os) {
                         None => {
-                            files.insert(se.stem, vec![se.ext]);
+                            files.insert(se.stem_os, vec![se.ext_os]);
                         }
                         Some(exts) => {
-                            exts.push(se.ext);
+                            exts.push(se.ext_os);
                         }
                     }
                 }
@@ -95,6 +116,7 @@ impl DirOrFile
 struct StemAndExt
 {
     stem: String,
+    stem_os: OsString,
     ext: String,
     ext_os: OsString,
 }
@@ -108,6 +130,7 @@ impl StemAndExt
         let ext = path.extension()?;
         Some(StemAndExt {
             stem: from_os_str(stem),
+            stem_os: OsString::from(stem),
             ext: from_os_str(ext),
             ext_os: OsString::from(ext),
         }

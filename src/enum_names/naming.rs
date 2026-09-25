@@ -1,4 +1,5 @@
-use crate::enum_names::common::{DirContents, FnInfo, Rename};
+use crate::common::dir_contents::DirContents;
+use crate::enum_names::common::{FnInfo, Rename};
 use crate::enum_names::stem_formatter;
 use crate::enum_names::stem_formatter::StemFormatter;
 
