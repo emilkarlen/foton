@@ -17,7 +17,7 @@ pub fn with_valid_args(execute: bool, dir_src: PathWithName, dir_dst: PathWithNa
     let dst_deleted = filter_not_in_src(dst_files, &src_files);
     let mut flat = Vec::new();
     flatten(dst_deleted, PathBuf::from(""), &mut flat);
-    process(flat);
+    process(execute, flat);
     Ok(())
 }
 
@@ -50,7 +50,7 @@ fn join(dir_under_dst: &PathBuf, sub_dir: &MyDirContents) -> PathBuf
     let sub_dir_name = &sub_dir.name;
     dir_under_dst.join(sub_dir_name)
 }
-fn process(dirs: ResultForProcessing)
+fn process(execute: bool, dirs: ResultForProcessing)
 {
     for dir  in dirs.iter() {
         for (stem, exts) in dir.2.iter() {
