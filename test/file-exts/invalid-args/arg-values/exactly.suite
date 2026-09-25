@@ -8,8 +8,4 @@ including ../common.xly
 
 [assert]
 
-exit-code == @[EXIT_INVALID_ARG]@
-
-stdout is-empty
-
-stderr ! is-empty
+including ../../../assertions/invalid-arg.xly

@@ -8,8 +8,4 @@ including ../common.xly
 
 [assert]
 
-exit-code == @[EXIT_CLI_SYNTAX]@
-
-stdout is-empty
-
-stderr ! is-empty
+including ../../../assertions/invalid-cli-syntax.xly
