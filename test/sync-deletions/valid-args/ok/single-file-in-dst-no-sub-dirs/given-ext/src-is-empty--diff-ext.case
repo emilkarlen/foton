@@ -1,0 +1,16 @@
+[act]
+
+@ BIN -e nonmatchingext src dst
+
+[assert]
+
+stdout is-empty
+
+[setup]
+
+dir src
+
+dir dst =
+{
+  file a.ext
+}

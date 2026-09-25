@@ -1,0 +1,19 @@
+[act]
+
+@ BIN src dst
+
+[assert]
+
+stdout is-empty
+
+[setup]
+
+dir src =
+{
+ file 'the file.ext'
+}
+
+dir dst =
+{
+  file 'the file.ext'
+}

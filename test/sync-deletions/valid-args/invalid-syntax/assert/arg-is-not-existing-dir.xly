@@ -1,0 +1,10 @@
+[assert]
+
+exit-code == @[EXIT_INVALID_ARGS]@
+
+stdout is-empty
+
+stderr matches -full
+<<EOF
+@[BIN_NAME]@:.*
+EOF

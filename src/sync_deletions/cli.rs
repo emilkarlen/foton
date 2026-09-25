@@ -15,10 +15,14 @@ pub fn sub_cmd(name: &'static str) -> Command
         .short('r')
         .action(ArgAction::SetTrue)
         .help(OPT_RECURSIVE_HELP);
-    let arg_dir = Arg::new(OPT_DIR_ID)
+    let arg_dir_src = Arg::new(OPT_DIR_SRC_ID)
         .required(true)
         .action(ArgAction::Set)
-        .help(OPT_DIR_HELP);
+        .help(OPT_DIR_SRC_HELP);
+    let arg_dir_dst = Arg::new(OPT_DIR_DST_ID)
+        .required(true)
+        .action(ArgAction::Set)
+        .help(OPT_DIR_DST_HELP);
 
     let cmd = Command::new(name);
     let cmd = ext_filter_cli::add_ext_filter_options(cmd);
@@ -27,36 +31,38 @@ pub fn sub_cmd(name: &'static str) -> Command
         .after_help(HELP_AFTER_OPTIONS)
         .arg(opt_execute)
         .arg(opt_recursive)
-        .arg(arg_dir)
+        .arg(arg_dir_src)
+        .arg(arg_dir_dst)
 }
 
 pub fn parse_cli_args(args: &ArgMatches) -> Box<dyn ExecutableCmd>
 {
-    let d = args.get_one::<String>(OPT_DIR_ID).expect("mandatory");
+    let dir_src = args.get_one::<String>(OPT_DIR_SRC_ID).expect("mandatory");
+    let dir_dst = args.get_one::<String>(OPT_DIR_DST_ID).expect("mandatory");
 
     Box::from(CmdConfig {
         execute: args.get_flag(OPT_EXECUTE_ID),
         recursive: args.get_flag(OPT_RECURSIVE_ID),
-        directory: Box::from(Path::new(&d)),
+        dir_src: Box::from(Path::new(&dir_src)),
+        dir_dst: Box::from(Path::new(&dir_dst)),
         extensions_filter: ext_filter_cli::parse_extensions_filter(args),
     })
 }
 
 const HELP_ABOUT: &str =
-"Renames the the basename of regular files in a given directory, \
-to 01.EXT, 02.EXT, ...";
+    "Deletes files in DST that does not have a counterpart in SRC";
 const HELP_AFTER_OPTIONS: &str =
-    "Files are enumerated in alphabetic order.\n\n\
-    Files without an extension are not renamed.\n\n\
-    Recursive application first enumerates the files in the dir itself,\n\
-    and then in sub directories (in alphabetic order).\n\n\
-    Renames are reported on stdout.";
+    "Deletes every file in DST that does not have a corresponding file in SRC.\n\n
+A file DST/X.EXT has a corresponding file in SRC iff:\n
+  there exists a file matching SRC/X.*";
 
 const OPT_EXECUTE_ID: &str = "execute";
 
 const OPT_RECURSIVE_ID: &str = "recursive";
 const OPT_RECURSIVE_HELP: &str = "Also rename files in sub-directories.";
-const OPT_DIR_ID: &str = "DIR";
-const OPT_DIR_HELP: &str = "The directory containing files to rename.";
+const OPT_DIR_SRC_ID: &str = "SRC-DIR";
+const OPT_DIR_DST_ID: &str = "DST-DIR";
+const OPT_DIR_SRC_HELP: &str = "The directory where files have been deleted";
+const OPT_DIR_DST_HELP: &str = "The directory in which to deletions files";
 const OPT_EXECUTE_SHORT: char = 'x';
 const OPT_EXECUTE_HELP: &str = "Do execute the action (default is to run dry)";

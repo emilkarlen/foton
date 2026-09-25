@@ -1,0 +1,2 @@
+def string EXIT_CLI_SYNTAX  = 2
+def string EXIT_INVALID_ARG = 3

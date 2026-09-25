@@ -1,0 +1,1 @@
+pub const EXIT_INVALID_ARG: u8 = 3;

@@ -1,0 +1,21 @@
+[act]
+
+@ BIN src-dir dst-dir
+
+[assert]
+
+stdout is-empty
+
+[setup]
+
+dir src-dir =
+{
+  file f1.src_ext
+  file f2.src_ext
+}
+
+dir dst-dir =
+{
+  file f1.dst_ext
+  file f2.dst_ext
+}

@@ -1,0 +1,24 @@
+[act]
+
+@ BIN src-dir dst-dir
+
+[assert]
+
+stdout equals
+<<EOF
+rm 'dst-dir/f2'.*
+EOF
+
+[setup]
+
+dir src-dir =
+{
+  file f1.ext
+  file f3.ext
+}
+
+dir dst-dir =
+{
+  file f1.ext
+  file f2.ext
+}

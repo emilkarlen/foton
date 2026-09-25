@@ -1,0 +1,7 @@
+[act]
+
+@ BIN_CMD not-a-dir a-dir
+
+[setup]
+
+dir a-dir

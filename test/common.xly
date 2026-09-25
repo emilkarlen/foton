@@ -11,3 +11,7 @@ def program HAS_LINE_SEQUENCE = -python -existing-file @[EXACTLY_ACT_HOME]@/util
 def text-matcher IS_NON_EMPTY_NON_EXCEPTION_OUTPUT =
 
     ( ! is-empty ) && ( ! any line : contents matches 'panick' )
+
+[before-assert]
+
+including exit.xly

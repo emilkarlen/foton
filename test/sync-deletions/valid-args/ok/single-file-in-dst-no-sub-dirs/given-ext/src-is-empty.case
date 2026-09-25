@@ -1,0 +1,19 @@
+[act]
+
+@ BIN -e ext src dst
+
+[assert]
+
+stdout equals
+<<EOF
+rm 'dst/a'.*
+EOF
+
+[setup]
+
+dir src
+
+dir dst =
+{
+  file a.ext
+}

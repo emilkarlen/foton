@@ -4,3 +4,4 @@ basics
 ext2lower
 enum-names
 file-exts
+sync-deletions

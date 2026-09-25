@@ -1,6 +1,6 @@
+use crate::common::ext_filter::ExtensionsFilter;
 use crate::enum_names::common;
 use crate::enum_names::common::{DirContents, FnInfo};
-use crate::enum_names::ext_filter::ExtensionsFilter;
 use std::collections::HashMap;
 use std::fs;
 use std::fs::FileType;

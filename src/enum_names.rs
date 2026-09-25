@@ -7,16 +7,17 @@ mod ext_filter;
 mod common;
 mod naming;
 
-use crate::enum_names::ext_filter::ExtensionsFilter;
-use crate::enum_names::rename_files::{execute};
+use crate::command::ExecutableCmd;
+use crate::common::ext_filter::ExtensionsFilter;
+use crate::enum_names::common::DirContents;
+use crate::enum_names::rename_files::execute;
 use common::Rename;
 use std::io;
 use std::io::Write;
 use std::ops::Deref;
 use std::path::Path;
 use std::process::ExitCode;
-use crate::enum_names::common::DirContents;
-use crate::command::ExecutableCmd;
+use crate::common::cli_exit::EXIT_INVALID_ARG;
 
 pub struct CmdConfig
 {
@@ -25,8 +26,6 @@ pub struct CmdConfig
     pub directory: Box<Path>,
     pub extensions_filter: Box<dyn ExtensionsFilter>,
 }
-
-const EXIT_INVALID_ARG: u8 = 2;
 
 impl ExecutableCmd for CmdConfig
 {
