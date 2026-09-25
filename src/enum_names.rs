@@ -16,7 +16,6 @@ use config::ReadConfig;
 use std::io;
 use std::path::PathBuf;
 
-
 pub struct CmdConfig
 {
     pub execute: bool,
@@ -44,7 +43,7 @@ impl ExecutableCmd for CmdConfig
     }
 }
 
-fn report_renames(rid: &DirContents<Rename>)
+fn report_renames(rid: &DirContents<Vec<Rename>>)
 {
     for rename in rid.files.iter() {
         for (old_fn, new_fn) in rename.renames().iter() {
@@ -56,7 +55,7 @@ fn report_renames(rid: &DirContents<Rename>)
     }
 }
 
-fn get_renames(dir: PathBuf, config: &ReadConfig) -> io::Result<DirContents<Rename>>
+fn get_renames(dir: PathBuf, config: &ReadConfig) -> io::Result<DirContents<Vec<Rename>>>
 {
     let mut files = read_files::rev_sorted_file_infos(dir, config)?;
     Ok(naming::resolve(&mut files))

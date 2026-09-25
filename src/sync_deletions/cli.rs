@@ -3,7 +3,7 @@ use crate::command::ExecutableCmd;
 use crate::common::ext_filter_cli;
 use clap::builder::*;
 use clap::ArgMatches;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use crate::common::read_files::ReadConfig;
 
 pub fn sub_cmd(name: &'static str) -> Command
@@ -48,8 +48,8 @@ pub fn parse_cli_args(args: &ArgMatches) -> Box<dyn ExecutableCmd>
 
     Box::from(CmdConfig {
         execute: args.get_flag(OPT_EXECUTE_ID),
-        dir_src: Box::from(Path::new(&dir_src)),
-        dir_dst: Box::from(Path::new(&dir_dst)),
+        dir_src: PathBuf::from(&dir_src),
+        dir_dst: PathBuf::from(&dir_dst),
         read_config: ReadConfig {
             recursive: args.get_flag(OPT_RECURSIVE_ID),
             include_hidden_sub_dirs: !args.get_flag(OPT_IGNORE_HIDDEN_SUB_DIRS_ID),

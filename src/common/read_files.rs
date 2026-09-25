@@ -6,8 +6,10 @@ use std::ffi::OsString;
 use std::fs;
 use std::fs::FileType;
 use std::io;
-use std::ops::Deref;
 use std::path::{Path, PathBuf};
+
+pub type FileNameStem = OsString;
+pub type  Extension = OsString;
 
 pub struct FnInfo
 {
@@ -33,30 +35,21 @@ pub struct ReadConfig
     pub extensions_filter: Box<dyn ExtensionsFilter>,
 }
 
-pub fn rev_sorted_file_infos(dir: PathBuf, config: &ReadConfig) -> io::Result<DirContents<FnInfo>>
+pub fn group_by_file_name_stem(dir: PathBuf, config: &ReadConfig) -> io::Result<DirContents<HashMap<FileNameStem, Vec<Extension>>>>
 {
-    let (sub_dir_names, files) = rev_sorted_file_infos_non_rec(&dir, config.include_hidden_sub_dirs, config.extensions_filter.deref())?;
+    let (sub_dir_names, files) = read_files_non_rec(&dir, config)?;
     let mut sub_dir_names = sub_dir_names;
     let mut sub_dirs = Vec::with_capacity(sub_dir_names.len());
     if config.recursive {
         for sub_dir_path in sub_dir_names.drain(..).rev() {
-            let sub_dir_contents = rev_sorted_file_infos(sub_dir_path, config)?;
+            let sub_dir_contents = group_by_file_name_stem(sub_dir_path, config)?;
             sub_dirs.push(sub_dir_contents);
         }
     }
     Ok(DirContents{dir, sub_dirs, files, })
 }
-fn rev_sorted_file_infos_non_rec(dir: &PathBuf, include_hidden_sub_dirs: bool, extensions_filter: &dyn ExtensionsFilter) -> io::Result<(Vec<PathBuf>, Vec<FnInfo>)>
-{
-    let (sub_dirs, files) = read_files(dir, include_hidden_sub_dirs, extensions_filter)?;
-    let mut sorted_sub_dirs = sub_dirs;
-    sorted_sub_dirs.sort();
-    let mut rev_sorted_fnis: Vec<_> = files.into_iter().map(FnInfo::from).collect();
-    rev_sorted_fnis.sort_by(|x, y| y.stem.cmp(&x.stem));
-    Ok((sorted_sub_dirs, rev_sorted_fnis))
-}
 
-fn read_files(dir: &Path, include_hidden_sub_dirs: bool, extensions_filter: &dyn ExtensionsFilter) -> io::Result<(Vec<PathBuf>, HashMap<OsString, Vec<OsString>>)>
+fn read_files_non_rec(dir: &Path, config: &ReadConfig) -> io::Result<(Vec<PathBuf>, HashMap<FileNameStem, Vec<Extension>>)>
 {
     let mut sub_dirs: Vec<PathBuf> = Vec::new();
     let mut files: HashMap<OsString, Vec<OsString>> = HashMap::new();
@@ -69,13 +62,13 @@ fn read_files(dir: &Path, include_hidden_sub_dirs: bool, extensions_filter: &dyn
             match dof {
                 DirOrFile::ADir(path) => {
                     if let Some(file_name) = path.file_name() {
-                        if include_hidden_sub_dirs || !crate::common::fs::is_hidden(&file_name) {
+                        if config.include_hidden_sub_dirs || !crate::common::fs::is_hidden(&file_name) {
                             sub_dirs.push(path)
                         }
                     }
                 }
                 DirOrFile::AFile(se) => {
-                    if !extensions_filter.accepts_os(&se.ext_os) {
+                    if !config.extensions_filter.accepts_os(&se.ext_os) {
                         continue;
                     }
                     match files.get_mut(&se.stem_os) {

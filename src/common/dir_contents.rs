@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
-pub struct DirContents<FT>
+pub struct DirContents<FILES>
 {
     pub dir: PathBuf,
-    pub sub_dirs: Vec<DirContents<FT>>,
-    pub files: Vec<FT>,
+    pub sub_dirs: Vec<DirContents<FILES>>,
+    pub files: FILES,
 }

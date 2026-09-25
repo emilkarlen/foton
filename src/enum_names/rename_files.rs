@@ -7,7 +7,7 @@ use std::path::Path;
 
 const TMP_DIR_NAME: &str = concat!(env!("CARGO_BIN_NAME"), "-enum-names-tmp-dir");
 
-pub fn execute(renames: &DirContents<Rename>) -> io::Result<u8>
+pub fn execute(renames: &DirContents<Vec<Rename>>) -> io::Result<u8>
 {
     rename_in_current_dir(renames)?;
     for sub_dir in renames.sub_dirs.iter() {
@@ -16,7 +16,7 @@ pub fn execute(renames: &DirContents<Rename>) -> io::Result<u8>
     Ok(0)
 }
 
-fn rename_in_current_dir(renames: &DirContents<Rename>) -> io::Result<u8>
+fn rename_in_current_dir(renames: &DirContents<Vec<Rename>>) -> io::Result<u8>
 {
     let tmp_dir = renames.dir.join(TMP_DIR_NAME);
     let tmp_dir = tmp_dir.as_path();
@@ -27,7 +27,7 @@ fn rename_in_current_dir(renames: &DirContents<Rename>) -> io::Result<u8>
     Ok(0)
 }
 
-fn move_files_to_tmp_dir(tmp_dir: &Path, rid: &DirContents<Rename>) -> io::Result<()>
+fn move_files_to_tmp_dir(tmp_dir: &Path, rid: &DirContents<Vec<Rename>>) -> io::Result<()>
 {
     for rename in rid.files.iter() {
         for (old_fn, _) in rename.renames().iter() {
@@ -38,7 +38,7 @@ fn move_files_to_tmp_dir(tmp_dir: &Path, rid: &DirContents<Rename>) -> io::Resul
     Ok(())
 }
 
-fn rename_by_moving_from_tmp_dir(tmp_dir: &Path, rid: &DirContents<Rename>) -> io::Result<()>
+fn rename_by_moving_from_tmp_dir(tmp_dir: &Path, rid: &DirContents<Vec<Rename>>) -> io::Result<()>
 {
     for rename in rid.files.iter() {
         for (old_fn, new_fn) in rename.renames().iter() {

@@ -3,14 +3,14 @@ use crate::enum_names::common::{FnInfo, Rename};
 use crate::enum_names::stem_formatter;
 use crate::enum_names::stem_formatter::StemFormatter;
 
-pub fn resolve(dc: &mut DirContents<FnInfo>) -> DirContents<Rename>
+pub fn resolve(dc: &mut DirContents<Vec<FnInfo>>) -> DirContents<Vec<Rename>>
 {
     let num_stems = num_stems_in(dc);
     let mut sf = stem_formatter::StemFormatter::new(num_stems);
     renames_of(dc, &mut sf)
 }
 
-fn renames_of(dc: &mut DirContents<FnInfo>, sf: &mut StemFormatter) -> DirContents<Rename>
+fn renames_of(dc: &mut DirContents<Vec<FnInfo>>, sf: &mut StemFormatter) -> DirContents<Vec<Rename>>
 {
     let mut sub_dirs = Vec::with_capacity(dc.sub_dirs.len());
     let mut files = Vec::with_capacity(dc.files.len());
@@ -36,7 +36,7 @@ fn renames_of(dc: &mut DirContents<FnInfo>, sf: &mut StemFormatter) -> DirConten
     }
 }
 
-fn num_stems_in(x: &DirContents<FnInfo>) -> usize
+fn num_stems_in(x: &DirContents<Vec<FnInfo>>) -> usize
 {
     let mut ret_val = x.files.len();
     for sub_dir in x.sub_dirs.iter() {

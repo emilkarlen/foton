@@ -11,7 +11,7 @@ use std::io;
 use std::ops::Deref;
 use std::path::{Path, PathBuf};
 
-pub fn rev_sorted_file_infos(dir: PathBuf, config: &ReadConfig) -> io::Result<DirContents<FnInfo>>
+pub fn rev_sorted_file_infos(dir: PathBuf, config: &ReadConfig) -> io::Result<DirContents<Vec<FnInfo>>>
 {
     let (sub_dir_names, files) = rev_sorted_file_infos_non_rec(&dir, config.extensions_filter.deref())?;
     let mut sub_dir_names = sub_dir_names;

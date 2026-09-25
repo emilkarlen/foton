@@ -2,15 +2,15 @@ pub mod cli;
 
 use crate::command::ExecutableCmd;
 use crate::common::arg_validation;
-use std::io;
-use std::path::Path;
 use crate::common::read_files::ReadConfig;
+use std::io;
+use std::path::PathBuf;
 
 pub struct CmdConfig
 {
     pub execute: bool,
-    pub dir_src: Box<Path>,
-    pub dir_dst: Box<Path>,
+    pub dir_src: PathBuf,
+    pub dir_dst: PathBuf,
     pub read_config: ReadConfig,
 }
 
