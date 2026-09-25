@@ -3,7 +3,4 @@
 help
 version
 invalid-args
-ext2lower
-enum-names
-file-exts
-sync-deletions
+cmd

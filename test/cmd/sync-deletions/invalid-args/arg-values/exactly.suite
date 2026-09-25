@@ -8,4 +8,4 @@ including ../common.xly
 
 [assert]
 
-including ../../../assertions/invalid-arg.xly
+including ../../../../assertions/invalid-arg.xly

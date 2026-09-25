@@ -8,4 +8,4 @@ including ../common.xly
 
 [assert]
 
-including ../../../assertions/invalid-cli-syntax.xly
+including ../../../../assertions/invalid-cli-syntax.xly
