@@ -3,7 +3,6 @@ mod read_files;
 mod stem_formatter;
 mod rename_files;
 mod report;
-mod ext_filter;
 mod common;
 mod naming;
 
