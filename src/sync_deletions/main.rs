@@ -21,21 +21,25 @@ pub fn with_valid_args(execute: bool, dir_src: PathWithName, dir_dst: PathWithNa
     Ok(())
 }
 
-fn flatten(dst_deleted: MyDirContents, dir_under_dst: PathBuf, out: &mut Vec<(PathWithName, Vec<(FileNameStem, Vec<Extension>)>)>)
+type ResultForProcessing = Vec<(PathBuf, PathBuf, Vec<(FileNameStem, Vec<Extension>)>)>;
+
+fn flatten(dst_deleted: MyDirContents, dir_under_dst: PathBuf, out: &mut ResultForProcessing)
 {
     // process_files(&dst_deleted);
     let dir = dst_deleted.dir;
+    let dir_path = dir.path;
+    let dir_under_dst_clone = dir_under_dst.clone();
     let mut files_map = dst_deleted.files;
     let mut files = Vec::with_capacity(files_map.len());
     for (stem, exts) in files_map.drain() {
         files.push((stem, exts));
     }
     files.sort_by(|x, y| x.0.cmp(&y.0));
-    out.push((dir, files));
+    out.push((dir_path, dir_under_dst, files));
     let mut sub_dirs = dst_deleted.sub_dirs;
     sub_dirs.sort_by(|x,y| x.dir.name.cmp(&y.dir.name));
     for sub_dir in sub_dirs.drain(..) {
-        let sub_dir_dud = join(&dir_under_dst, &sub_dir);
+        let sub_dir_dud = join(&dir_under_dst_clone, &sub_dir);
         flatten(sub_dir, sub_dir_dud, out);
     }
 }
@@ -46,11 +50,11 @@ fn join(dir_under_dst: &PathBuf, sub_dir: &MyDirContents) -> PathBuf
     let sub_dir_name = &sub_dir.name;
     dir_under_dst.join(sub_dir_name)
 }
-fn process(dirs: Vec<(PathWithName, Vec<(FileNameStem, Vec<Extension>)>)>)
+fn process(dirs: ResultForProcessing)
 {
     for dir  in dirs.iter() {
-        for (stem, exts) in dir.1.iter() {
-            let p = dir.0.path.join(stem);
+        for (stem, exts) in dir.2.iter() {
+            let p = dir.0.join(stem);
             println!("rm '{}'.*", p.display());
         }
     }
