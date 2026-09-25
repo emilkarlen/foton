@@ -9,7 +9,6 @@ pub struct Reporter
 {
     rename: Box<dyn Write>,
     skip: Box<dyn Write>,
-    io_error: Box<dyn Write>,
 }
 
 
@@ -21,7 +20,6 @@ impl Reporter
         {
             rename: Box::new(io::stdout()),
             skip: Box::new(io::stderr()),
-            io_error: Box::new(io::stderr()),
         }
     }
 
@@ -41,12 +39,6 @@ impl Reporter
     {
         let msg = format!("{} -> {}\n", src, dst.to_string_lossy());
         Reporter::write_to_stream(&mut self.rename,  msg)
-    }
-
-    pub fn report_stdin_read_error(&mut self, error: &io::Error)
-    {
-        let msg = format!("{}\n", error.to_string());
-        Reporter::write_to_stream(&mut self.io_error,  msg)
     }
 
     fn report_skip(&mut self, file_name: &String, cause: &str)

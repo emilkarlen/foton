@@ -13,11 +13,9 @@ use crate::enum_names::common::DirContents;
 use crate::enum_names::rename_files::execute;
 use common::Rename;
 use std::io;
-use std::io::Write;
 use std::ops::Deref;
 use std::path::Path;
-use std::process::ExitCode;
-use crate::common::cli_exit::EXIT_INVALID_ARG;
+use crate::common::arg_validation;
 
 pub struct CmdConfig
 {
@@ -29,25 +27,12 @@ pub struct CmdConfig
 
 impl ExecutableCmd for CmdConfig
 {
-    fn execute(&self) -> ExitCode
+    fn validate_args(&self) -> Result<(), String>
     {
-        if !self.directory.is_dir() {
-            std::io::stderr().write_fmt(format_args!("not a dir: {}\n", self.directory.display())).unwrap();
-            return ExitCode::from(EXIT_INVALID_ARG);
-        }
-        match self.with_valid_args() {
-            Ok(exit_code) => ExitCode::from(exit_code),
-            Err(e) => {
-                io::stderr().write_fmt(format_args!("{}\n", e)).expect("Could not write to stderr");
-                ExitCode::FAILURE
-            }
-        }
+        arg_validation::is_existing_dir(self.directory.as_ref())
     }
-}
 
-impl CmdConfig
-{
-    fn with_valid_args(&self) -> io::Result<u8>
+    fn with_valid_args(&self) -> io::Result<()>
     {
         let renames = get_renames(&self.directory, self.recursive, self.extensions_filter.deref())?;
         if self.execute {
@@ -56,8 +41,7 @@ impl CmdConfig
         else {
             report_renames(&renames);
         }
-        Ok(0)
-
+        Ok(())
     }
 }
 
