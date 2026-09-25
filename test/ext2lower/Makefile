@@ -1,13 +1,16 @@
-.PHONY: all clean
+.PHONY: ind multi all clean
 
 all: multi ind
 
-ind:
-	python3 cases-gen/genrator.py individual cases-gen single-path
+ind: valid-args/single-path
+multi: valid-args/multi
 
-multi:
-	python3 cases-gen/genrator.py all cases-gen multi
+valid-args/single-path:
+	python3 cases-gen/genrator.py individual cases-gen $@
+
+valid-args/multi:
+	python3 cases-gen/genrator.py all cases-gen $@
 
 clean:
-	rm -rf multi
-	rm -rf single-path
+	rm -rf valid-args/multi
+	rm -rf valid-args/single-path

@@ -1,6 +1,10 @@
-[act]
+[cases]
 
-@ BIN --help
+*.case
+
+[setup]
+
+including ../common.xly
 
 [assert]
 

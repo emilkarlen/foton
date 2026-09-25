@@ -1,0 +1,11 @@
+[cases]
+
+*.case
+
+[setup]
+
+including ../common.xly
+
+[assert]
+
+including ../../../assertions/invalid-cli-syntax.xly

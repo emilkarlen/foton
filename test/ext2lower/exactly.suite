@@ -1,7 +1,5 @@
 [suites]
 
-basics
-failures
-do-not-rename
-single-path
-multi
+help
+invalid-args
+valid-args
