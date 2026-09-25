@@ -2,6 +2,7 @@ use crate::common::ext_filter::ExtensionsFilter;
 use super::common::{DirContents, FnInfo};
 use super::config::ReadConfig;
 use std::collections::HashMap;
+use std::ffi::OsString;
 use std::fs;
 use std::fs::FileType;
 use std::io;
@@ -45,7 +46,7 @@ fn read_files(dir: &Path, extensions_filter: &dyn ExtensionsFilter) -> io::Resul
             match dof {
                 DirOrFile::ADir(path) => { sub_dirs.push(path) }
                 DirOrFile::AFile(se) => {
-                    if !extensions_filter.accept(&se.ext.as_str()) {
+                    if !extensions_filter.accepts_os(&se.ext_os) {
                         continue;
                     }
                     match files.get_mut(&se.stem) {
@@ -94,6 +95,7 @@ struct StemAndExt
 {
     stem: String,
     ext: String,
+    ext_os: OsString,
 }
 
 impl StemAndExt
@@ -105,7 +107,8 @@ impl StemAndExt
         let ext = path.extension()?;
         Some(StemAndExt {
             stem: from_os_str(stem),
-            ext: from_os_str(ext)
+            ext: from_os_str(ext),
+            ext_os: OsString::from(ext),
         }
         )
     }
