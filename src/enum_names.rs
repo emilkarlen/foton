@@ -5,23 +5,23 @@ mod rename_files;
 mod report;
 mod common;
 mod naming;
+mod config;
 
 use crate::command::ExecutableCmd;
-use crate::common::ext_filter::ExtensionsFilter;
+use crate::common::arg_validation;
 use crate::enum_names::common::DirContents;
 use crate::enum_names::rename_files::execute;
 use common::Rename;
+use config::ReadConfig;
 use std::io;
-use std::ops::Deref;
 use std::path::Path;
-use crate::common::arg_validation;
+
 
 pub struct CmdConfig
 {
     pub execute: bool,
-    pub recursive: bool,
     pub directory: Box<Path>,
-    pub extensions_filter: Box<dyn ExtensionsFilter>,
+    pub read_config: ReadConfig,
 }
 
 impl ExecutableCmd for CmdConfig
@@ -33,7 +33,7 @@ impl ExecutableCmd for CmdConfig
 
     fn with_valid_args(&self) -> io::Result<()>
     {
-        let renames = get_renames(&self.directory, self.recursive, self.extensions_filter.deref())?;
+        let renames = get_renames(&self.directory, &self.read_config)?;
         if self.execute {
             execute(&renames)?;
         }
@@ -56,8 +56,8 @@ fn report_renames(rid: &DirContents<Rename>)
     }
 }
 
-fn get_renames(dir: &Path, recursive: bool, extensions_filter: &dyn ExtensionsFilter) -> io::Result<DirContents<Rename>>
+fn get_renames(dir: &Path, config: &ReadConfig) -> io::Result<DirContents<Rename>>
 {
-    let mut files = read_files::rev_sorted_file_infos(dir, recursive, extensions_filter)?;
+    let mut files = read_files::rev_sorted_file_infos(dir, config)?;
     Ok(naming::resolve(&mut files))
 }

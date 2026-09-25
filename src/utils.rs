@@ -1,6 +1,6 @@
 use std::ffi::OsStr;
 
-pub fn from_oss(s: &OsStr) -> String
+pub fn from_os_str(s: &OsStr) -> String
 {
     s.to_string_lossy().into_owned()
 }

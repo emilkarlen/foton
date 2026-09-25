@@ -1,4 +1,3 @@
-use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
 pub struct DirContents<FT>
@@ -49,9 +48,4 @@ impl FnInfo
             extensions: x.1,
         }
     }
-}
-
-pub fn from_os(s: &OsStr) -> String
-{
-    s.to_string_lossy().into_owned()
 }

@@ -68,7 +68,7 @@ fn read_files(dir: &Path, config: &ReadConfig, collection: &mut HashMap<OsString
 
 fn is_hidden(name: &OsStr) -> bool
 {
-    if let Some(ch) = utils::from_oss(name).chars().next() {
+    if let Some(ch) = utils::from_os_str(name).chars().next() {
         ch == '.'
     } else {
         // string is empty

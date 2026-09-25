@@ -23,7 +23,7 @@ fn report_data(config: &ReportConfig, collection: &mut HashMap<OsString, usize>)
     let mut max_num_files = 0;
     let mut max_ext_len = 0;
     for (ext, num) in collection.drain() {
-        extensions.push((utils::from_oss(&ext), num));
+        extensions.push((utils::from_os_str(&ext), num));
         tot_num_files += num;
         if num > max_num_files {
             max_num_files = num;

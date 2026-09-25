@@ -1,24 +1,24 @@
 use crate::common::ext_filter::ExtensionsFilter;
-use crate::enum_names::common;
-use crate::enum_names::common::{DirContents, FnInfo};
+use super::common::{DirContents, FnInfo};
+use super::config::ReadConfig;
 use std::collections::HashMap;
 use std::fs;
 use std::fs::FileType;
 use std::io;
+use std::ops::Deref;
 use std::path::Path;
+use crate::utils::from_os_str;
 
-pub fn rev_sorted_file_infos(dir: &Path, recursive: bool, extensions_filter: &dyn ExtensionsFilter) -> io::Result<DirContents<FnInfo>>
+pub fn rev_sorted_file_infos(dir: &Path, config: &ReadConfig) -> io::Result<DirContents<FnInfo>>
 {
-    let (sub_dir_names, files) = rev_sorted_file_infos_non_rec(dir, extensions_filter)?;
+    let (sub_dir_names, files) = rev_sorted_file_infos_non_rec(dir, config.extensions_filter.deref())?;
     let mut sub_dir_names = sub_dir_names;
     let mut sub_dirs = Vec::with_capacity(sub_dir_names.len());
-    if recursive {
-        while !sub_dir_names.is_empty() {
-            if let Some(sub_dir_name) = sub_dir_names.pop() {
-                let sub_dir_path = dir.join(Path::new(&sub_dir_name));
-                let sub_dir_contents = rev_sorted_file_infos(&sub_dir_path, true, extensions_filter)?;
-                sub_dirs.push(sub_dir_contents);
-            }
+    if config.recursive {
+        for sub_dir_name in sub_dir_names.drain(..).rev() {
+            let sub_dir_path = dir.join(Path::new(&sub_dir_name));
+            let sub_dir_contents = rev_sorted_file_infos(&sub_dir_path, config)?;
+            sub_dirs.push(sub_dir_contents);
         }
     }
     Ok(DirContents{dir: Box::from(dir), sub_dirs, files, })
@@ -86,7 +86,7 @@ impl DirOrFile
         if f_type.is_dir() {
             let path = entry.path();
             let file_name = path.file_name()?;
-            Some(DirOrFile::ADir(common::from_os(file_name)))
+            Some(DirOrFile::ADir(from_os_str(file_name)))
         }
         else if f_type.is_file() {
             let x = StemAndExt::from(entry)?;
@@ -106,8 +106,9 @@ impl StemAndExt
         let stem = path.file_stem()?;
         let ext = path.extension()?;
         Some(StemAndExt {
-            stem: common::from_os(stem),
-            ext: common::from_os(ext)}
+            stem: from_os_str(stem),
+            ext: from_os_str(ext)
+        }
         )
     }
 }
