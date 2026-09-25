@@ -1,6 +1,10 @@
-[act]
+[cases]
 
-@ BIN_CMD -h
+*.case
+
+[setup]
+
+including ../common.xly
 
 [assert]
 

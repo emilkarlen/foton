@@ -1,4 +1,6 @@
 [suites]
 
-basics
-ok
+help
+invalid-args
+valid-args
+

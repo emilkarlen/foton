@@ -1,7 +1,3 @@
-[cases]
-
-*.case
-
 [setup]
 
 including ../common.xly

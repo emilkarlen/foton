@@ -15,3 +15,5 @@ def text-matcher IS_NON_EMPTY_NON_EXCEPTION_OUTPUT =
 [before-assert]
 
 including exit.xly
+
+def path GLOB_ASSERTIONS = -rel-here assertions
