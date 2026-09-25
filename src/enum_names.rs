@@ -14,13 +14,13 @@ use crate::enum_names::rename_files::execute;
 use common::Rename;
 use config::ReadConfig;
 use std::io;
-use std::path::Path;
+use std::path::PathBuf;
 
 
 pub struct CmdConfig
 {
     pub execute: bool,
-    pub directory: Box<Path>,
+    pub directory: PathBuf,
     pub read_config: ReadConfig,
 }
 
@@ -33,7 +33,7 @@ impl ExecutableCmd for CmdConfig
 
     fn with_valid_args(&self) -> io::Result<()>
     {
-        let renames = get_renames(&self.directory, &self.read_config)?;
+        let renames = get_renames(self.directory.clone(), &self.read_config)?;
         if self.execute {
             execute(&renames)?;
         }
@@ -56,7 +56,7 @@ fn report_renames(rid: &DirContents<Rename>)
     }
 }
 
-fn get_renames(dir: &Path, config: &ReadConfig) -> io::Result<DirContents<Rename>>
+fn get_renames(dir: PathBuf, config: &ReadConfig) -> io::Result<DirContents<Rename>>
 {
     let mut files = read_files::rev_sorted_file_infos(dir, config)?;
     Ok(naming::resolve(&mut files))

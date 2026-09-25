@@ -1,10 +1,10 @@
 use super::CmdConfig;
 use crate::command::ExecutableCmd;
 use crate::common::ext_filter_cli;
+use crate::enum_names::config::ReadConfig;
 use clap::builder::*;
 use clap::ArgMatches;
-use std::path::Path;
-use crate::enum_names::config::ReadConfig;
+use std::path::PathBuf;
 
 pub fn sub_cmd(name: &'static str) -> Command
 {
@@ -37,7 +37,7 @@ pub fn parse_cli_args(args: &ArgMatches) -> Box<dyn ExecutableCmd>
 
     Box::from(CmdConfig {
         execute: args.get_flag(OPT_EXECUTE_ID),
-        directory: Box::from(Path::new(&d)),
+        directory: PathBuf::from(&d),
         read_config: ReadConfig {
             recursive: args.get_flag(OPT_RECURSIVE_ID),
             extensions_filter: ext_filter_cli::parse_extensions_filter(args),

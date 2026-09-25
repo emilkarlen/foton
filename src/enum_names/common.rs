@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 pub struct DirContents<FT>
 {
-    pub dir: Box<Path>,
+    pub dir: PathBuf,
     pub sub_dirs: Vec<DirContents<FT>>,
     pub files: Vec<FT>,
 }

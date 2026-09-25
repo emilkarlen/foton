@@ -6,24 +6,23 @@ use std::fs;
 use std::fs::FileType;
 use std::io;
 use std::ops::Deref;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use crate::utils::from_os_str;
 
-pub fn rev_sorted_file_infos(dir: &Path, config: &ReadConfig) -> io::Result<DirContents<FnInfo>>
+pub fn rev_sorted_file_infos(dir: PathBuf, config: &ReadConfig) -> io::Result<DirContents<FnInfo>>
 {
-    let (sub_dir_names, files) = rev_sorted_file_infos_non_rec(dir, config.extensions_filter.deref())?;
+    let (sub_dir_names, files) = rev_sorted_file_infos_non_rec(&dir, config.extensions_filter.deref())?;
     let mut sub_dir_names = sub_dir_names;
     let mut sub_dirs = Vec::with_capacity(sub_dir_names.len());
     if config.recursive {
-        for sub_dir_name in sub_dir_names.drain(..).rev() {
-            let sub_dir_path = dir.join(Path::new(&sub_dir_name));
-            let sub_dir_contents = rev_sorted_file_infos(&sub_dir_path, config)?;
+        for sub_dir_path in sub_dir_names.drain(..).rev() {
+            let sub_dir_contents = rev_sorted_file_infos(sub_dir_path, config)?;
             sub_dirs.push(sub_dir_contents);
         }
     }
-    Ok(DirContents{dir: Box::from(dir), sub_dirs, files, })
+    Ok(DirContents{dir, sub_dirs, files, })
 }
-fn rev_sorted_file_infos_non_rec(dir: &Path, extensions_filter: &dyn ExtensionsFilter) -> io::Result<(Vec<String>, Vec<FnInfo>)>
+fn rev_sorted_file_infos_non_rec(dir: &PathBuf, extensions_filter: &dyn ExtensionsFilter) -> io::Result<(Vec<PathBuf>, Vec<FnInfo>)>
 {
     let (sub_dirs, files) = read_files(dir, extensions_filter)?;
     let mut sorted_sub_dirs = sub_dirs;
@@ -33,9 +32,9 @@ fn rev_sorted_file_infos_non_rec(dir: &Path, extensions_filter: &dyn ExtensionsF
     Ok((sorted_sub_dirs, rev_sorted_fnis))
 }
 
-fn read_files(dir: &Path, extensions_filter: &dyn ExtensionsFilter) -> io::Result<(Vec<String>, HashMap<String, Vec<String>>)>
+fn read_files(dir: &Path, extensions_filter: &dyn ExtensionsFilter) -> io::Result<(Vec<PathBuf>, HashMap<String, Vec<String>>)>
 {
-    let mut sub_dirs: Vec<String> = Vec::new();
+    let mut sub_dirs: Vec<PathBuf> = Vec::new();
     let mut files: HashMap<String, Vec<String>> = HashMap::new();
     let entries = dir.read_dir()?;
     for mb_entry in entries {
@@ -44,7 +43,7 @@ fn read_files(dir: &Path, extensions_filter: &dyn ExtensionsFilter) -> io::Resul
         let mb_dof = DirOrFile::from(&f_type, &entry);
         if let Some(dof) = mb_dof {
             match dof {
-                DirOrFile::ADir(dir_name) => { sub_dirs.push(dir_name) },
+                DirOrFile::ADir(path) => { sub_dirs.push(path) }
                 DirOrFile::AFile(se) => {
                     if !extensions_filter.accept(&se.ext.as_str()) {
                         continue;
@@ -67,15 +66,9 @@ fn read_files(dir: &Path, extensions_filter: &dyn ExtensionsFilter) -> io::Resul
     Ok((sub_dirs, files))
 }
 
-struct StemAndExt
-{
-    stem: String,
-    ext: String,
-}
-
 enum DirOrFile
 {
-    ADir(String),
+    ADir(PathBuf),
     AFile(StemAndExt),
 }
 
@@ -84,9 +77,7 @@ impl DirOrFile
     fn from(f_type: &FileType, entry: &fs::DirEntry) -> Option<DirOrFile>
     {
         if f_type.is_dir() {
-            let path = entry.path();
-            let file_name = path.file_name()?;
-            Some(DirOrFile::ADir(from_os_str(file_name)))
+            Some(DirOrFile::ADir(entry.path()))
         }
         else if f_type.is_file() {
             let x = StemAndExt::from(entry)?;
@@ -98,6 +89,13 @@ impl DirOrFile
     }
 
 }
+
+struct StemAndExt
+{
+    stem: String,
+    ext: String,
+}
+
 impl StemAndExt
 {
     fn from(entry: &fs::DirEntry) -> Option<StemAndExt>
