@@ -1,6 +1,8 @@
 [suites]
 
-basics
+help
+version
+invalid-args
 ext2lower
 enum-names
 file-exts

@@ -1,0 +1,19 @@
+[cases]
+
+*.case
+
+[setup]
+
+including ../common.xly
+
+[before-assert]
+
+def text-matcher IS_HELP_OUTPUT = run @ HAS_LINE_SEQUENCE Usage Command Options
+
+[assert]
+
+exit-code == 0
+
+stderr is-empty
+
+stdout @[IS_HELP_OUTPUT]@
