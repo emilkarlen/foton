@@ -2,4 +2,4 @@
 
 including ../common.xly
 
-def program BIN_EXE = @ BIN file-exts
+def program BIN_CMD = @ BIN file-exts

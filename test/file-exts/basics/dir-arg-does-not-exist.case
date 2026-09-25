@@ -1,6 +1,6 @@
 [act]
 
-@ BIN_EXE non-existing-dir
+@ BIN_CMD non-existing-dir
 
 [assert]
 

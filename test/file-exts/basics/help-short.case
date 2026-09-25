@@ -1,6 +1,6 @@
 [act]
 
-@ BIN_EXE -h
+@ BIN_CMD -h
 
 [assert]
 

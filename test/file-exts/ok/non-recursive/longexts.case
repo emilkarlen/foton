@@ -1,6 +1,6 @@
 [act]
 
-@ BIN_EXE -l @[SRC_DIR]@
+@ BIN_CMD -l @[SRC_DIR]@
 
 [assert]
 

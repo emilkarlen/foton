@@ -1,6 +1,6 @@
 [act]
 
-@ BIN_EXE -n @[SRC_DIR]@ @[SRC_DIR_2]@
+@ BIN_CMD -n @[SRC_DIR]@ @[SRC_DIR_2]@
 
 [setup]
 

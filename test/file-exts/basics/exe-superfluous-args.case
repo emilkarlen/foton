@@ -1,6 +1,6 @@
 [act]
 
-@ BIN_EXE dir-arg superfluous-arg
+@ BIN_CMD dir-arg superfluous-arg
 
 [setup]
 
