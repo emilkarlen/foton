@@ -3,6 +3,7 @@ use crate::common::read_files::{DirContents, Extension, FileNameStem, PathWithNa
 use std::collections::HashMap;
 use std::ffi::OsString;
 use std::io;
+use std::path::{Path, PathBuf};
 use crate::common::ext_filter::any;
 
 pub fn with_valid_args(execute: bool, dir_src: PathWithName, dir_dst: PathWithName, read_config: &ReadConfig) -> io::Result<()>
@@ -14,41 +15,13 @@ pub fn with_valid_args(execute: bool, dir_src: PathWithName, dir_dst: PathWithNa
     let src_files = read_files::group_by_file_name_stem(dir_src, &src_files_config)?;
     let dst_files = read_files::group_by_file_name_stem(dir_dst, &read_config)?;
     let dst_deleted = filter_not_in_src(dst_files, &src_files);
-    process(dst_deleted);
+    let mut flat = Vec::new();
+    flatten(dst_deleted, PathBuf::from(""), &mut flat);
+    process(flat);
     Ok(())
 }
 
-fn report(dst_deleted: MyDirContents)
-{
-    report_files(&dst_deleted);
-    let mut sub_dirs = dst_deleted.sub_dirs;
-    sub_dirs.sort_by(|x,y| x.dir.name.cmp(&y.dir.name));
-}
-fn report_files(dst_deleted: &MyDirContents)
-{
-    println!("{} {}", dst_deleted.dir.path.display(), dst_deleted.dir.name.display());
-    for (stem, _) in dst_deleted.files.iter() {
-        println!("  {}", stem.display());
-    }
-}
-fn process_files(dst_deleted: &MyDirContents)
-{
-    let dir = &dst_deleted.dir.path;
-    for (stem, _) in dst_deleted.files.iter() {
-        let p = dir.join(stem);
-        println!("rm '{}'.*", p.display());
-    }
-}
-
-fn process_files2(dir: &PathWithName, files: &Vec<(FileNameStem, Vec<Extension>)>)
-{
-    for (stem, _) in files.iter() {
-        let p = dir.path.join(stem);
-        println!("rm '{}'.*", p.display());
-    }
-}
-
-fn process(dst_deleted: MyDirContents)
+fn flatten(dst_deleted: MyDirContents, dir_under_dst: PathBuf, out: &mut Vec<(PathWithName, Vec<(FileNameStem, Vec<Extension>)>)>)
 {
     // process_files(&dst_deleted);
     let dir = dst_deleted.dir;
@@ -58,14 +31,30 @@ fn process(dst_deleted: MyDirContents)
         files.push((stem, exts));
     }
     files.sort_by(|x, y| x.0.cmp(&y.0));
-    process_files2(&dir, &files);
+    out.push((dir, files));
     let mut sub_dirs = dst_deleted.sub_dirs;
     sub_dirs.sort_by(|x,y| x.dir.name.cmp(&y.dir.name));
     for sub_dir in sub_dirs.drain(..) {
-        process(sub_dir);
+        let sub_dir_dud = join(&dir_under_dst, &sub_dir);
+        flatten(sub_dir, sub_dir_dud, out);
     }
 }
 
+fn join(dir_under_dst: &PathBuf, sub_dir: &MyDirContents) -> PathBuf
+{
+    let sub_dir = &sub_dir.dir;
+    let sub_dir_name = &sub_dir.name;
+    dir_under_dst.join(sub_dir_name)
+}
+fn process(dirs: Vec<(PathWithName, Vec<(FileNameStem, Vec<Extension>)>)>)
+{
+    for dir  in dirs.iter() {
+        for (stem, exts) in dir.1.iter() {
+            let p = dir.0.path.join(stem);
+            println!("rm '{}'.*", p.display());
+        }
+    }
+}
 
 type MyFileContents = HashMap<FileNameStem, Vec<Extension>>;
 type MyDirContents = DirContents<MyFileContents>;
