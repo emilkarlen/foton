@@ -1,0 +1,27 @@
+[act]
+
+@ BIN_DRY --move move-dir src-dir dst-dir
+
+[assert]
+
+stdout equals
+<<EOF
+mv 'dst-dir/a'.* move-dir/a
+mv 'dst-dir/b'.* move-dir/b
+mv 'dst-dir/d1/a'.* move-dir/d1/a
+EOF
+
+[setup]
+
+dir move-dir
+dir src-dir
+
+dir dst-dir =
+{
+  dir d1 =
+  {
+    file a.ext
+  }
+  file a.ext1
+  file b.ext2
+}

@@ -1,0 +1,8 @@
+[act]
+
+@ BIN_CMD --move not-a-dir a-dir1 a-dir2
+
+[setup]
+
+dir a-dir1
+dir a-dir2

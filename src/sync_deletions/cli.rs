@@ -5,6 +5,7 @@ use crate::common::read_files::ReadConfig;
 use clap::builder::*;
 use clap::ArgMatches;
 use std::path::PathBuf;
+use crate::sync_deletions::config::ProcessConfig;
 
 pub fn sub_cmd(name: &'static str) -> Command
 {
@@ -12,6 +13,10 @@ pub fn sub_cmd(name: &'static str) -> Command
         .short(OPT_EXECUTE_SHORT)
         .action(ArgAction::SetTrue)
         .help(OPT_EXECUTE_HELP);
+    let opt_move = Arg::new(OPT_MOVE_ID)
+        .long("move")
+        .action(ArgAction::Set)
+        .help(OPT_MOVE_HELP);
     let opt_recursive = Arg::new(OPT_RECURSIVE_ID)
         .short('r')
         .action(ArgAction::SetTrue)
@@ -35,6 +40,7 @@ pub fn sub_cmd(name: &'static str) -> Command
         .about(HELP_ABOUT)
         .after_help(HELP_AFTER_OPTIONS)
         .arg(opt_execute)
+        .arg(opt_move)
         .arg(opt_recursive)
         .arg(opt_ignore_hidden_sub_dirs)
         .arg(arg_dir_src)
@@ -45,9 +51,13 @@ pub fn parse_cli_args(args: &ArgMatches) -> Box<dyn ExecutableCmd>
 {
     let dir_src = args.get_one::<String>(OPT_DIR_SRC_ID).expect("mandatory");
     let dir_dst = args.get_one::<String>(OPT_DIR_DST_ID).expect("mandatory");
+    let dir_move = args.get_one::<String>(OPT_MOVE_ID).map(PathBuf::from);
 
     Box::from(CmdConfig {
+        process_config: ProcessConfig {
         execute: args.get_flag(OPT_EXECUTE_ID),
+        move_to: dir_move,
+    },
         dir_src: PathBuf::from(&dir_src),
         dir_dst: PathBuf::from(&dir_dst),
         read_config: ReadConfig {
@@ -66,6 +76,8 @@ A file DST/X.EXT has a corresponding file in SRC iff:\n
   there exists a file matching SRC/X.*";
 
 const OPT_EXECUTE_ID: &str = "execute";
+const OPT_MOVE_ID: &str = "MOVE-TO-DIR";
+const OPT_MOVE_HELP: &str = "Moves deleted files from DST-DIR to the given directory, instead of deleting.";
 
 const OPT_RECURSIVE_ID: &str = "recursive";
 const OPT_RECURSIVE_HELP: &str = "Also rename files in sub-directories.";

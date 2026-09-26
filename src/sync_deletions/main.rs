@@ -5,8 +5,9 @@ use std::ffi::OsString;
 use std::io;
 use std::path::{Path, PathBuf};
 use crate::common::ext_filter::any;
+use crate::sync_deletions::config::ProcessConfig;
 
-pub fn with_valid_args(execute: bool, dir_src: PathWithName, dir_dst: PathWithName, read_config: &ReadConfig) -> io::Result<()>
+pub fn with_valid_args(process_config: &ProcessConfig, dir_src: PathWithName, dir_dst: PathWithName, read_config: &ReadConfig) -> io::Result<()>
 {
     let src_files_config = ReadConfig {
         extensions_filter: Box::new(any()),
@@ -17,7 +18,7 @@ pub fn with_valid_args(execute: bool, dir_src: PathWithName, dir_dst: PathWithNa
     let dst_deleted = filter_not_in_src(dst_files, &src_files);
     let mut flat = Vec::new();
     flatten(dst_deleted, PathBuf::from(""), &mut flat);
-    process(execute, flat);
+    process(process_config, flat);
     Ok(())
 }
 
@@ -50,12 +51,17 @@ fn join(dir_under_dst: &PathBuf, sub_dir: &MyDirContents) -> PathBuf
     let sub_dir_name = &sub_dir.name;
     dir_under_dst.join(sub_dir_name)
 }
-fn process(execute: bool, dirs: ResultForProcessing)
+fn process(process_config: &ProcessConfig, dirs: ResultForProcessing)
 {
-    for dir  in dirs.iter() {
-        for (stem, exts) in dir.2.iter() {
-            let p = dir.0.join(stem);
-            println!("rm '{}'.*", p.display());
+    for (dir, dir_under_dst, stem_and_exts)  in dirs.iter() {
+        for (stem, exts) in stem_and_exts.iter() {
+            let p = dir.join(stem);
+            if let Some(move_to_dir) = (&process_config).move_to.as_ref() {
+                let mtp = move_to_dir.join(dir_under_dst).join(stem);
+                println!("mv '{}'.* {}", p.display(), mtp.display());
+            } else {
+                println!("rm '{}'.*", p.display());
+            }
         }
     }
 }

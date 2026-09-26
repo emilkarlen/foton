@@ -1,0 +1,21 @@
+[act]
+
+@ BIN_DRY --move move-to src dst
+
+[assert]
+
+stdout equals
+<<EOF
+mv 'dst/a'.* move-to/a
+EOF
+
+[setup]
+
+dir move-to
+
+dir src
+
+dir dst =
+{
+  file a.ext
+}
