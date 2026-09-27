@@ -1,14 +1,11 @@
-# See ext2lower for details
+#  Generates test cases, needed for running the tests
 
-.PHONY: all ind clean
+.PHONY: all clean
 
-all: multi ind
-
-ind:
-	make -C ext2lower ind
-
-multi:
-	make -C ext2lower multi
+all:
+	make -C cmd/ext2lower all
+	make -C cmd/sync-deletions/valid-args all
 
 clean:
-	make -C ext2lower clean
+	make -C cmd/ext2lower clean
+	make -C cmd/sync-deletions/valid-args clean
