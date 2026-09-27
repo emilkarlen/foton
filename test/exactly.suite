@@ -1,6 +1,6 @@
 [suites]
 
-basics
-ext2lower
-enum-names
-file-exts
+help
+version
+invalid-args
+cmd

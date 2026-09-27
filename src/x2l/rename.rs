@@ -1,3 +1,4 @@
+use std::io;
 use std::io::Stdin;
 use std::path::{Path, PathBuf};
 
@@ -6,23 +7,23 @@ use super::renamer::*;
 use super::reporter::*;
 
 
-pub fn rename_files(file_names_reader: Stdin, renamer: Renamer,reporter: &mut Reporter) -> std::process::ExitCode
+pub fn rename_files(file_names_reader: Stdin, renamer: Renamer,reporter: &mut Reporter) -> io::Result<()>
 {
-    let mut exit_code = std::process::ExitCode::SUCCESS;
-
     for input_line_r in file_names_reader.lines() {
-        match input_line_r {
-            Err(io_err) => {
-                reporter.report_stdin_read_error(&io_err);
-                exit_code = std::process::ExitCode::FAILURE;
-                break;
-            }
-            Ok(input_line) => {
-                process_file_name(&renamer, reporter, &input_line);
-            }
-        }
+        let input_line = input_line_r?;
+        process_file_name(&renamer, reporter, &input_line);
+//        match input_line_r {
+//            Err(io_err) => {
+//                reporter.report_stdin_read_error(&io_err);
+//                exit_code = std::process::ExitCode::FAILURE;
+//                break;
+//            }
+//            Ok(input_line) => {
+//                process_file_name(&renamer, reporter, &input_line);
+//            }
+//        }
     }
-    exit_code
+    Ok(())
 }
 
 

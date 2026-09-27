@@ -1,0 +1,12 @@
+[cases]
+
+*.case
+
+[setup]
+
+including ../common.xly
+including defs.xly
+
+[assert]
+
+exit-code == 0

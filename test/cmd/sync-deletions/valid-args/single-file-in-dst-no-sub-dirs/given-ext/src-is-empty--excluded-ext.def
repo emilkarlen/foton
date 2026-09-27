@@ -1,0 +1,12 @@
+EXTRA_OPTIONS = [ --skip ext ]
+
+SRC = { }
+
+DST =
+{
+  file a.ext
+}
+
+DELETIONS_RECURSIVE = { }
+
+DELETIONS_NON_RECURSIVE = &DELETIONS_RECURSIVE

@@ -1,0 +1,15 @@
+EXTRA_OPTIONS = [ ]
+
+SRC =
+{
+  file the-basename.src_ext
+}
+
+DST =
+{
+  file the-basename.dst_ext
+}
+
+DELETIONS_RECURSIVE = { }
+
+DELETIONS_NON_RECURSIVE = &DELETIONS_RECURSIVE

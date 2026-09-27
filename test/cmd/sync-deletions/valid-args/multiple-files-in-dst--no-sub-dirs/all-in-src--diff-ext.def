@@ -1,0 +1,17 @@
+EXTRA_OPTIONS = [ ]
+
+SRC =
+{
+  file f1.src_ext
+  file f2.src_ext
+}
+
+DST =
+{
+  file f1.dst_ext
+  file f2.dst_ext
+}
+
+DELETIONS_RECURSIVE = { }
+
+DELETIONS_NON_RECURSIVE = &DELETIONS_RECURSIVE

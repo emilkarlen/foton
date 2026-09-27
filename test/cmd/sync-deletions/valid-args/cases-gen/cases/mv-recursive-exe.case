@@ -1,0 +1,18 @@
+[act]
+
+@ BIN_EXE -r --move @[MOV_DIR]@  @[EXTRA_OPTIONS]@  @[SRC_DIR]@ @[DST_DIR]@
+
+[setup]
+
+dir @[MOV_DIR]@
+
+[assert]
+
+stdout @[REPORT_MATCHER_mv_r]@
+
+dir-contents . : matches -full
+{
+  @[SRC_DIR]@ : type dir && dir-contents matches -full @[SRC_DIR_CONTENTS]@
+  @[DST_DIR]@ : type dir && dir-contents matches -full @[DST_DIR_CONTENTS_after_r]@
+  @[MOV_DIR]@ : type dir && dir-contents matches -full @[MOV_DIR_CONTENTS_after_r]@
+}

@@ -1,0 +1,5 @@
+[setup]
+
+including ../common.xly
+
+def file-matcher IS_EMPTY_FILE = type file && contents is-empty

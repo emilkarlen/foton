@@ -1,0 +1,16 @@
+EXTRA_OPTIONS = [ --skip ext ]
+
+SRC =
+{
+  file src-file.ext
+}
+
+DST =
+{
+  file dst-file.ext
+}
+
+DELETIONS_RECURSIVE = { }
+
+DELETIONS_NON_RECURSIVE = &DELETIONS_RECURSIVE
+

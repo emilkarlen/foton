@@ -1,3 +1,6 @@
+use std::io;
+
 pub trait ExecutableCmd {
-    fn execute(&self) -> std::process::ExitCode;
+    fn validate_args(&self) -> Result<(), String>;
+    fn with_valid_args(&self) -> io::Result<()>;
 }

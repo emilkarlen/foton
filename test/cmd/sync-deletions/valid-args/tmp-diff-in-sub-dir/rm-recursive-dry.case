@@ -1,0 +1,13 @@
+[act]
+
+@ BIN_DRY -r @[SRC_DIR]@ @[DST_DIR]@
+
+[assert]
+
+stdout @[STDOUT_rm]@
+
+dir-contents . : matches -full
+{
+  @[SRC_DIR]@ : type dir && dir-contents matches -full @[SRC_DIR_CONTENTS]@
+  @[DST_DIR]@ : type dir && dir-contents matches -full @[DST_DIR_before]@
+}

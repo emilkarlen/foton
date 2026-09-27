@@ -1,0 +1,41 @@
+EXTRA_OPTIONS = [ ]
+
+SRC =
+{
+  dir sub-dir
+  {
+    file s1.ext
+    file s2.ext
+  }
+  file s1.ext
+  file s3.ext
+}
+
+DST =
+{
+  dir sub-dir
+  {
+    file d1.ext
+    file d2.ext
+  }
+  file d1.ext
+  file d2.ext
+}
+
+
+DELETIONS_RECURSIVE =
+{
+  file d1.ext
+  file d2.ext
+  dir sub-dir
+  {
+    file d1.ext
+    file d2.ext
+  }
+}
+
+DELETIONS_NON_RECURSIVE =
+{
+  file d1.ext
+  file d2.ext
+}

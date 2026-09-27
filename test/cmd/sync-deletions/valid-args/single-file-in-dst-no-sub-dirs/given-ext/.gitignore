@@ -1,0 +1,11 @@
+all-in-src--included-ext
+all-in-src--excluded-ext
+all-in-src--diff-ext
+diff-basename--included-ext
+diff-basename--excluded-ext
+excluded-ext-in-src--diff
+excluded-ext-in-src--eq
+more-in-src
+src-is-empty--included-ext
+src-is-empty--excluded-ext
+src-is-empty--diff-ext

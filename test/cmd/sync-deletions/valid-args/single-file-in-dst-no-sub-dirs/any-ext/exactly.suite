@@ -1,0 +1,9 @@
+[suites]
+
+all-in-src
+all-in-src--diff-ext
+all-in-src--spc-in-basename
+diff-basename
+diff-basename--spc-in-basename
+more-in-src
+src-is-empty

@@ -1,12 +1,4 @@
-use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
-
-pub struct DirContents<FT>
-{
-    pub dir: Box<Path>,
-    pub sub_dirs: Vec<DirContents<FT>>,
-    pub files: Vec<FT>,
-}
 
 #[derive(Debug)]
 pub struct Rename
@@ -49,9 +41,4 @@ impl FnInfo
             extensions: x.1,
         }
     }
-}
-
-pub fn from_os(s: &OsStr) -> String
-{
-    s.to_string_lossy().into_owned()
 }

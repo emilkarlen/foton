@@ -1,0 +1,15 @@
+EXTRA_OPTIONS = [ -e ext-included ]
+
+SRC =
+{
+  file f.ext-excluded
+}
+
+DST =
+{
+  file f.ext-included
+}
+
+DELETIONS_RECURSIVE = { }
+
+DELETIONS_NON_RECURSIVE = &DELETIONS_RECURSIVE

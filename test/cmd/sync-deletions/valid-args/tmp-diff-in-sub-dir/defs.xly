@@ -1,0 +1,75 @@
+[setup]
+
+def string SRC_DIR = src-dir
+def string DST_DIR = dst-dir
+def string MOV_DIR = move-to-dir
+
+dir @[SRC_DIR]@ =
+{
+  dir sub-dir =
+  {
+    file s1.ext
+  }
+  file f1.ext_src
+  file f2.ext
+}
+
+dir @[DST_DIR]@ =
+{
+  dir sub-dir =
+  {
+    file d1.ext
+  }
+  file f1.ext_dst
+  file f2.ext
+}
+
+
+[before-assert]
+
+def files-condition SRC_DIR_CONTENTS =
+{
+  sub-dir : type dir && dir-contents matches -full
+  {
+    s1.ext : type file
+  }
+  f1.ext_src : type file
+  f2.ext     : type file
+}
+
+def text-matcher STDOUT_rm = equals
+<<EOF
+rm '@[DST_DIR]@/sub-dir/d1.ext'
+EOF
+
+def text-matcher STDOUT_mv = equals
+<<EOF
+mv '@[DST_DIR]@/sub-dir/d1.ext' '@[MOV_DIR]@/sub-dir'
+EOF
+
+def files-condition DST_DIR_before =
+{
+  sub-dir : type dir && dir-contents matches -full
+  {
+    d1.ext : type file
+  }
+  f1.ext_dst : type file
+  f2.ext     : type file
+}
+
+def files-condition DST_DIR_after =
+{
+  sub-dir    : type dir && dir-contents is-empty
+  f1.ext_src : type file
+  f2.ext     : type file
+}
+
+def files-condition MOV_DIR_before =  { }
+
+def files-condition MOV_DIR_after =
+{
+  sub-dir : type dir && dir-contents matches -full
+  {
+    s1.ext : type file
+  }
+}

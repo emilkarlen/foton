@@ -1,0 +1,12 @@
+EXTRA_OPTIONS = [ -e non-matching-ext ]
+
+SRC =
+{
+ file a.ext
+}
+
+DST = &SRC
+
+DELETIONS_RECURSIVE = { }
+
+DELETIONS_NON_RECURSIVE = &DELETIONS_RECURSIVE

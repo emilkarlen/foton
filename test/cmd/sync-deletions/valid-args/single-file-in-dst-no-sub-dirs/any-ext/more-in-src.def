@@ -1,0 +1,16 @@
+EXTRA_OPTIONS = [ ]
+
+SRC =
+{
+ file a.ext
+ file b.ext
+}
+
+DST =
+{
+  file a.ext
+}
+
+DELETIONS_RECURSIVE = { }
+
+DELETIONS_NON_RECURSIVE = &DELETIONS_RECURSIVE

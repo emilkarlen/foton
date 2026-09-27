@@ -1,0 +1,8 @@
+all-diff-basename
+all-in-src
+all-in-src--diff-ext
+diff-in-sub-dir
+diff-in-sub-dir--subdir-deleted
+diff-in-hidden-sub-dir--skip
+diff-in-hidden-sub-dir--include
+src-is-empty
