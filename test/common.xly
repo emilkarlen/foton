@@ -4,7 +4,7 @@ act-home = .
 
 [setup]
 
-def program BIN = @[EXACTLY_ACT_HOME]@/../target/debug/foton
+def program BIN = @[EXACTLY_ACT_HOME]@/../target/debug/photofiles
 
 def program HAS_LINE_SEQUENCE = -python -existing-file @[EXACTLY_ACT_HOME]@/utils/has-lines-sequence.py
 
