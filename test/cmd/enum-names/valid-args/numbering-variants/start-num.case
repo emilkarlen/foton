@@ -1,0 +1,54 @@
+[act]
+
+@ BIN_EXE -r --start-num 7 @[DIR]@
+
+[setup]
+
+def string DIR = the-dir
+
+dir @[DIR]@ =
+{
+  file a.ext1
+  file a.ext2
+  file b.ext
+  dir a =
+  {
+    file a.ext1
+    file b.ext
+    file c.ext
+  }
+}
+
+[assert]
+
+stdout equals @[REPORT]@
+
+dir-contents . : matches -full
+{
+  @[DIR]@ : type dir && dir-contents matches -full @[DIR_CONTENTS_AFTER_RENAME]@
+}
+
+[before-assert]
+
+def string REPORT =
+<<EOF
+@[DIR]@: a.ext1 -> 07.ext1
+@[DIR]@: a.ext2 -> 07.ext2
+@[DIR]@: b.ext -> 08.ext
+@[DIR]@/a: a.ext1 -> 09.ext1
+@[DIR]@/a: b.ext -> 10.ext
+@[DIR]@/a: c.ext -> 11.ext
+EOF
+
+def files-condition DIR_CONTENTS_AFTER_RENAME =
+{
+ 07.ext1 : type file
+ 07.ext2 : type file
+ 08.ext  : type file
+ a : type dir && dir-contents matches -full
+ {
+    09.ext1 : type file
+    10.ext  : type file
+    11.ext  : type file
+ }
+}

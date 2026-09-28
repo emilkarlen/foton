@@ -10,10 +10,11 @@ pub struct FixedWidthFormatter {
 }
 
 impl FixedWidthFormatter {
-    pub fn new_for_num(largest_num: usize) -> FixedWidthFormatter
+    pub fn new_for_num(largest_num: usize, min_width: usize) -> FixedWidthFormatter
     {
+        let larget_num_width = ((largest_num + 1) as f64).log10().ceil() as usize;
         FixedWidthFormatter {
-            width: ((largest_num + 1) as f64).log10().ceil() as usize,
+            width: std::cmp::max(larget_num_width, min_width),
         }
     }
     pub fn new(width: usize) -> FixedWidthFormatter

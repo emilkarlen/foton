@@ -44,7 +44,7 @@ fn report_data(config: &ReportConfig, collection: &mut HashMap<OsString, usize>)
 
 fn report(config: &ReportConfig, data: &Data)
 {
-    let num_formatter = utils::FixedWidthFormatter::new_for_num(data.max_num_files);
+    let num_formatter = utils::FixedWidthFormatter::new_for_num(data.max_num_files, 0);
     let ext_formatter = utils::FixedWidthFormatter::new(data.max_ext_len);
     for (ext, num) in data.extensions.iter() {
         if config.num_files {
