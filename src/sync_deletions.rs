@@ -22,25 +22,28 @@ impl ExecutableCmd for CmdConfig
 {
     fn execute(&self) -> Result<(), CmdError>
     {
-        self.validate_args().map_err(CmdError::ArgsValidationError)?;
-        self.with_valid_args().map_err(command::io_to_cmd)
+        let (src, dst) = self.validate_args().map_err(CmdError::ArgsValidationError)?;
+        self.with_valid_args(src, dst).map_err(command::io_to_cmd)
     }
 }
 impl CmdConfig
 {
-    fn validate_args(&self) -> Result<(), String>
+    fn validate_args(&self) -> Result<(PathWithName, PathWithName), String>
     {
         let mt = &(&self.process_config).move_to;
         if  let Some(dir_move_to) = mt {
             arg_validation::is_existing_dir(dir_move_to.as_ref())?;
         }
         arg_validation::is_existing_dir(self.dir_src.as_ref())?;
-        arg_validation::is_existing_dir(self.dir_dst.as_ref())
+        arg_validation::is_existing_dir(self.dir_dst.as_ref())?;
+
+        let dir_src = arg_validation::is_path_with_name(&self.dir_src, "SRC")?;
+        let dir_dst = arg_validation::is_path_with_name(&self.dir_dst, "DST")?;
+
+        Ok((dir_src, dir_dst))
     }
-    fn with_valid_args(&self) -> io::Result<()>
+    fn with_valid_args(&self, dir_src: PathWithName, dir_dst: PathWithName) -> io::Result<()>
     {
-        let dir_src = PathWithName::from(self.dir_src.clone()).unwrap();
-        let dir_dst = PathWithName::from(self.dir_dst.clone()).unwrap();
         main::with_valid_args(&self.process_config, dir_src, dir_dst, &self.read_config)
     }
 }

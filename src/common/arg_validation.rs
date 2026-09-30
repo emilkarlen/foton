@@ -1,5 +1,6 @@
 use std::ffi::OsStr;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+use crate::common::read_files::PathWithName;
 
 pub fn is_existing_dir(p: &Path) -> Result<(), String>
 {
@@ -17,5 +18,13 @@ pub fn has_name(p: &Path) -> Result<&OsStr, String>
     }
     else {
         Err(format!("path does not have a new: {}", p.display()))
+    }
+}
+
+pub fn is_path_with_name(path: &PathBuf, dir_name: &'static str) -> Result<PathWithName, String>
+{
+    match PathWithName::from(path.clone()) {
+        Some(p) => Ok(p),
+        None => Err(format!("path does not have a name ({}): {}", dir_name, path.display())),
     }
 }

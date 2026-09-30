@@ -1,4 +1,3 @@
-use crate::rename::custom_format::Property::Number;
 use crate::rename::custom_format::Token::{TDelimBegin, TDelimEnd};
 
 #[derive(Debug, PartialEq)]
@@ -165,8 +164,8 @@ fn test_parse()
     assert_eq!(parse_from_str("{{"), err("Expecting property name, found {"));
     assert_eq!(parse_from_str("}"),  err("Unexpected }"));
     assert_eq!(parse_from_str("}}"), err("Unexpected }"));
-    assert_eq!(parse_from_str("{NN}"), Ok(vec!(r(&Number))));
-    assert_eq!(parse_from_str("abc-{NN}-def"), Ok(vec!(c("abc-"), r(&Number), c("-def"))));
+    assert_eq!(parse_from_str("{NN}"), Ok(vec!(r(&Property::Number))));
+    assert_eq!(parse_from_str("abc-{NN}-def"), Ok(vec!(c("abc-"), r(&Property::Number), c("-def"))));
     assert_eq!(parse_from_str("{fp"),      err("Missing }"));
     assert_eq!(parse_from_str("}fp{"),     err("Unexpected }"));
     assert_eq!(parse_from_str("abc{}def"), err("Missing property name after {"));
