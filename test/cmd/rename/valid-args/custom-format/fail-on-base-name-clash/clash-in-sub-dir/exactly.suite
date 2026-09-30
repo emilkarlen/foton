@@ -1,0 +1,57 @@
+[cases]
+
+*.case
+
+[setup]
+
+including ../common.xly
+
+def string CONST_NAME = 'constant'
+
+def list FORMAT_ARGS = --format @[CONST_NAME]@
+
+def string DIR = some-dir
+
+dir @[DIR]@ =
+{
+ file x.ext
+ dir d =
+ {
+   file c.ext
+   file a.ext
+ }
+}
+
+
+[assert]
+
+exit-code == @[EXIT_OTHER]@
+
+stderr equals @[ERROR_REPORT]@
+
+stdout is-empty
+
+dir-contents . : matches -full
+{
+  @[DIR]@ : type dir && dir-contents matches -full @[DIR_CONTENTS_before]@
+}
+
+
+[before-assert]
+
+def string ERROR_REPORT =
+<<EOF
+@[ERR_MSG_FIRST_LINE]@
+@[DIR]@/d: a -> @[CONST_NAME]@
+@[DIR]@/d: c -> @[CONST_NAME]@
+EOF
+
+def files-condition DIR_CONTENTS_before =
+{
+ x.ext : type file
+ d : type dir && dir-contents matches -full
+ {
+   a.ext : type file
+   c.ext : type file
+ }
+}

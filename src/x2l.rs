@@ -6,9 +6,10 @@ mod rename;
 mod reporter;
 
 use std::io;
+use crate::command;
 use self::renamer::Renamer;
 use self::reporter::Reporter;
-use super::command::ExecutableCmd;
+use super::command::{CmdError, ExecutableCmd};
 
 pub struct CmdConfig
 {
@@ -16,6 +17,15 @@ pub struct CmdConfig
 }
 
 impl ExecutableCmd for CmdConfig
+{
+    fn execute(&self) -> Result<(), CmdError>
+    {
+        self.validate_args().map_err(CmdError::ArgsValidationError)?;
+        self.with_valid_args().map_err(command::io_to_cmd)
+    }
+}
+
+impl CmdConfig
 {
     fn validate_args(&self) -> Result<(), String>
     {

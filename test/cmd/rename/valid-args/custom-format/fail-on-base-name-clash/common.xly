@@ -1,0 +1,7 @@
+[setup]
+
+including ../common.xly
+
+[before-assert]
+
+def string ERR_MSG_FIRST_LINE = "@[UNABLE_TO_EXE_FIRST_LINE_HEADER]@ Name clashes"

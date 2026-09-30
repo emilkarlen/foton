@@ -2,11 +2,12 @@ pub mod cli;
 pub mod main;
 pub mod config;
 
-use crate::command::ExecutableCmd;
+use crate::command::{CmdError, ExecutableCmd};
 use crate::common::arg_validation;
 use crate::common::read_files::{PathWithName, ReadConfig};
 use std::io;
 use std::path::PathBuf;
+use crate::command;
 use crate::sync_deletions::config::ProcessConfig;
 
 pub struct CmdConfig
@@ -18,6 +19,14 @@ pub struct CmdConfig
 }
 
 impl ExecutableCmd for CmdConfig
+{
+    fn execute(&self) -> Result<(), CmdError>
+    {
+        self.validate_args().map_err(CmdError::ArgsValidationError)?;
+        self.with_valid_args().map_err(command::io_to_cmd)
+    }
+}
+impl CmdConfig
 {
     fn validate_args(&self) -> Result<(), String>
     {

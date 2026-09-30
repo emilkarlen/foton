@@ -1,14 +1,14 @@
 use crate::utils::FixedWidthFormatter;
 
-pub struct StemNumFormatter {
+pub struct SequentialNumGenerator {
     num_formatter: FixedWidthFormatter,
     next_num: usize,
 }
 
-impl StemNumFormatter {
-    pub fn new(start_num: usize, max_stem_number: usize, min_width: usize) -> StemNumFormatter
+impl SequentialNumGenerator {
+    pub fn new(start_num: usize, max_stem_number: usize, min_width: usize) -> SequentialNumGenerator
     {
-        StemNumFormatter {
+        SequentialNumGenerator {
             num_formatter: FixedWidthFormatter::new_for_num(max_stem_number, min_width),
             next_num: start_num,
         }

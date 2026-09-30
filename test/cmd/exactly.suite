@@ -1,6 +1,6 @@
 [suites]
 
 ext2lower
-enum-names
+rename
 file-exts
 sync-deletions

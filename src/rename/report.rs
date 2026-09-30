@@ -1,5 +1,5 @@
 use crate::common::dir_contents::DirContents;
-use crate::enum_names::common::Rename;
+use crate::rename::common::Rename;
 use std::path::Path;
 
 pub fn report_rename(dir: &Path, rename: (&Path, &Path))

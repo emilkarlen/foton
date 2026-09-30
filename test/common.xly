@@ -4,7 +4,9 @@ act-home = .
 
 [setup]
 
-def program BIN = @[EXACTLY_ACT_HOME]@/../target/debug/photofiles
+def string BIN_NAME = photofiles
+
+def program BIN = @[EXACTLY_ACT_HOME]@/../target/debug/@[BIN_NAME]@
 
 def program HAS_LINE_SEQUENCE = -python -existing-file @[EXACTLY_ACT_HOME]@/utils/has-lines-sequence.py
 
@@ -15,3 +17,5 @@ def text-matcher IS_NON_EMPTY_NON_EXCEPTION_OUTPUT =
 [before-assert]
 
 including exit.xly
+
+def string UNABLE_TO_EXE_FIRST_LINE_HEADER = "@[BIN_NAME]@: Failure:"

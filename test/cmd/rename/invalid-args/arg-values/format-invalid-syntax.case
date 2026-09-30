@@ -1,0 +1,7 @@
+[act]
+
+@ BIN_CMD --format 'missing-end-delimiter{' a-dir
+
+[setup]
+
+dir a-dir

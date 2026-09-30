@@ -1,7 +1,7 @@
 use super::CmdConfig;
 use crate::command::ExecutableCmd;
 use crate::common::ext_filter_cli;
-use crate::enum_names::config::{NamingConfig, ReadConfig};
+use crate::rename::config::{NamingConfigCli, ReadConfig};
 use clap::builder::*;
 use clap::{value_parser, ArgMatches};
 use std::path::PathBuf;
@@ -20,6 +20,10 @@ pub fn sub_cmd(name: &'static str) -> Command
         .default_value("1")
         .value_parser(value_parser!(usize))
         .help(OPT_MIN_NUM_WIDTH_HELP);
+    let opt_format = Arg::new(OPT_FORMAT_ID)
+        .long("format")
+        .action(ArgAction::Set)
+        .help(OPT_FORMAT_HELP);
     let opt_execute = Arg::new(OPT_EXECUTE_ID)
         .short(OPT_EXECUTE_SHORT)
         .action(ArgAction::SetTrue)
@@ -40,6 +44,7 @@ pub fn sub_cmd(name: &'static str) -> Command
         .after_help(HELP_AFTER_OPTIONS)
         .arg(opt_start_num)
         .arg(opt_min_num_width)
+        .arg(opt_format)
         .arg(opt_execute)
         .arg(opt_recursive)
         .arg(arg_dir)
@@ -56,9 +61,10 @@ pub fn parse_cli_args(args: &ArgMatches) -> Box<dyn ExecutableCmd>
             recursive: args.get_flag(OPT_RECURSIVE_ID),
             extensions_filter: ext_filter_cli::parse_extensions_filter(args),
         },
-        naming_config: NamingConfig {
+        naming_config: NamingConfigCli {
             start_num: *args.get_one::<usize>(OPT_START_NUM_ID).unwrap(),
             min_width: *args.get_one::<usize>(OPT_MIN_NUM_WIDTH_ID).unwrap(),
+            format: args.get_one(OPT_FORMAT_ID).map(String::clone),
         }
     })
 }
@@ -78,6 +84,8 @@ const OPT_START_NUM_ID: &str = "START-NUM";
 const OPT_START_NUM_HELP: &str = "Start numbering from given number";
 const OPT_MIN_NUM_WIDTH_ID: &str = "MIN-WIDTH";
 const OPT_MIN_NUM_WIDTH_HELP: &str = "Minimum width of number string";
+const OPT_FORMAT_ID: &str = "FORMAT";
+const OPT_FORMAT_HELP: &str = "Custom formatting using {NN} for file number";
 const OPT_RECURSIVE_ID: &str = "recursive";
 const OPT_RECURSIVE_HELP: &str = "Also rename files in sub-directories.";
 const OPT_DIR_ID: &str = "DIR";

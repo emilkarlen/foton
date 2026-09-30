@@ -1,6 +1,6 @@
 use crate::common::dir_contents::DirContents;
-use crate::enum_names::common::Rename;
-use crate::enum_names::report::report_rename;
+use crate::rename::common::Rename;
+use crate::rename::report::report_rename;
 use std::fs;
 use std::io;
 use std::path::Path;

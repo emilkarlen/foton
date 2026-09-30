@@ -5,7 +5,8 @@ mod config;
 
 use std::io;
 use std::path::Path;
-use crate::command::ExecutableCmd;
+use crate::command;
+use crate::command::{CmdError, ExecutableCmd};
 use crate::common::arg_validation;
 use crate::file_exts::config::{ReportConfig, ReadConfig};
 
@@ -17,6 +18,15 @@ pub struct CmdConfig
 }
 
 impl ExecutableCmd for CmdConfig
+{
+    fn execute(&self) -> Result<(), CmdError>
+    {
+        self.validate_args().map_err(CmdError::ArgsValidationError)?;
+        self.with_valid_args().map_err(command::io_to_cmd)
+    }
+}
+
+impl CmdConfig
 {
     fn validate_args(&self) -> Result<(), String>
     {

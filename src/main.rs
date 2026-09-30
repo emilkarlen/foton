@@ -1,28 +1,43 @@
 use std::process::ExitCode;
-use crate::common::cli_exit::EXIT_INVALID_ARG;
+use crate::command::{CmdError, ExeError};
+use crate::common::cli_exit::{EXIT_INVALID_ARG, EXIT_OTHER};
+use crate::common::PROG_NAME;
 
 mod cli;
 mod x2l;
-mod enum_names;
+mod rename;
 mod file_exts;
 mod command;
 mod utils;
 mod sync_deletions;
 pub mod common;
 
-fn main() -> std::process::ExitCode
+fn main() -> ExitCode
 {
     let cmd = cli::parse();
 
-    if let Err(err_msg) = cmd.validate_args() {
-        eprintln!("{}", err_msg);
-        return ExitCode::from(EXIT_INVALID_ARG);
-    }
-    match cmd.with_valid_args() {
-        Ok(_) => ExitCode::SUCCESS,
+    match cmd.execute() {
+        Ok(()) => ExitCode::SUCCESS,
         Err(e) => {
-            eprintln!("{}\n", e);
-            ExitCode::FAILURE
+            match e {
+                CmdError::ArgsValidationError(err_msg) => {
+                    eprintln!("{}: {}", PROG_NAME, err_msg);
+                    ExitCode::from(EXIT_INVALID_ARG)
+                },
+                CmdError::ExecutionError(e) => {
+                    match e {
+                        ExeError::UnableToExecute(msg) => {
+                            eprintln!("{}: Failure: {}", PROG_NAME, msg.reason);
+                            msg.details.iter().for_each(|s| eprintln!("{s}"));
+                            ExitCode::from(EXIT_OTHER)
+                        }
+                        ExeError::OsError(e) => {
+                            eprintln!("{}: {}", PROG_NAME, e);
+                            ExitCode::FAILURE
+                        },
+                    }
+                }
+            }
         }
     }
 }

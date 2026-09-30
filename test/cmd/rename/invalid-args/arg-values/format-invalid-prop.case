@@ -1,0 +1,7 @@
+[act]
+
+@ BIN_CMD --format '{invalid_prop}' a-dir
+
+[setup]
+
+dir a-dir

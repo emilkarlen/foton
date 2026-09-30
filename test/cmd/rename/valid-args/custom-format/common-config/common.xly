@@ -1,0 +1,36 @@
+[setup]
+
+including ../common.xly
+
+def string DIR = the-dir
+
+def files-source COMMON_DIR_CONTENTS =
+{
+  file a.ext1
+  file a.ext2
+  file b.ext1
+  file b.ext2
+  dir a =
+  {
+    file a.ext1
+    file b.ext
+    file c.ext
+  }
+}
+
+
+[before-assert]
+
+def files-condition DIR_CONTENTS_before =
+{
+  a.ext1 : type file
+  a.ext2 : type file
+  b.ext1 : type file
+  b.ext2 : type file
+  a :  type dir && dir-contents matches -full
+  {
+    a.ext1 : type file
+    b.ext  : type file
+    c.ext  : type file
+  }
+}

@@ -1,0 +1,4 @@
+[suites]
+
+common-config
+fail-on-base-name-clash
