@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 use crate::command::{ExeError, UnableToExecuteError};
-use crate::common::dir_contents::DirContents;
+use crate::common::read_files::DirContents;
 use crate::rename::common::{FnInfo, Rename};
 use crate::rename::config::NamingConfig;
 use crate::rename::renamer;
@@ -9,10 +9,10 @@ use crate::rename::renamer::StemGenerator;
 
 const REASON: &str = "Name clashes";
 
-pub fn resolve(mut dc: DirContents<Vec<FnInfo>>, config: &NamingConfig) -> Result<DirContents<Vec<Rename>>, ExeError>
+pub fn resolve(dc: DirContents<Vec<FnInfo>>, config: &NamingConfig) -> Result<DirContents<Vec<Rename>>, ExeError>
 {
     let mut name_generator = renamer::resolve(&dc, config);
-    let renames = renames_of(&mut dc, &mut name_generator);
+    let renames = renames_of(dc, &mut name_generator);
     if name_generator.may_produce_clashes() {
         with_check_for_clashes(renames)
     }
@@ -51,29 +51,28 @@ fn err_msg_detail(path: &PathBuf, rename: &Rename) -> String
 {
     format!("{}: {} -> {}", path.display(), rename.old_stem, rename.new_stem)
 }
-fn renames_of(dc: &mut DirContents<Vec<FnInfo>>, stem_gen: &mut Box<dyn StemGenerator>) -> DirContents<Vec<Rename>>
+fn renames_of(dc: DirContents<Vec<FnInfo>>, stem_gen: &mut Box<dyn StemGenerator>) -> DirContents<Vec<Rename>>
 {
-    let mut sub_dirs = Vec::with_capacity(dc.sub_dirs.len());
-    let mut files = Vec::with_capacity(dc.files.len());
-    while !dc.files.is_empty() {
-        if let Some(fni) = dc.files.pop() {
-            let ren = Rename {
-                new_stem: stem_gen.next(),
-                old_stem: fni.stem,
-                extensions: fni.extensions,
-            };
-            files.push(ren);
-        }
-    };
-    while !dc.sub_dirs.is_empty() {
-        if let Some(mut sub_dir) = dc.sub_dirs.pop() {
-            sub_dirs.push(renames_of(&mut sub_dir, stem_gen));
-        }
-    };
+    let DirContents { dir, mut sub_dirs, mut files} = dc;
+
+    let mut files_2 = Vec::with_capacity(files.len());
+    for fni in files.drain(..) {
+        let ren = Rename {
+            new_stem: stem_gen.next(),
+            old_stem: fni.stem,
+            extensions: fni.extensions,
+        };
+        files_2.push(ren);
+
+    }
+    let mut sub_dirs_2 = Vec::with_capacity(sub_dirs.len());
+    for sub_dir in sub_dirs.drain(..) {
+        sub_dirs_2.push(renames_of(sub_dir, stem_gen))
+    }
     DirContents {
-        dir: dc.dir.clone(),
-        sub_dirs,
-        files,
+        dir: dir,
+        sub_dirs: sub_dirs_2,
+        files: files_2,
     }
 }
 
@@ -87,7 +86,7 @@ fn check_clashes(dc: DirContents<Vec<Rename>>, errs: &mut Vec<(PathBuf, Vec<Rena
     let DirContents { dir, sub_dirs, mut files } = dc;
     let (non_clashes, clashes) = check_files(&mut files);
     if !clashes.is_empty() {
-        errs.push((dir.clone(), clashes));
+        errs.push((dir.path.clone(), clashes));
     }
     DirContents {
         dir: dir,

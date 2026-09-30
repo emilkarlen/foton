@@ -1,8 +1,8 @@
-use crate::common::dir_contents::DirContents;
 use crate::rename::common::FnInfo;
 use crate::rename::config::NamingConfig;
 use crate::rename::custom_format::{FormatPart, Property};
 use crate::rename::renamer::num_generator::SequentialNumGenerator;
+use crate::common::read_files;
 
 mod num_generator;
 
@@ -13,7 +13,8 @@ pub trait StemGenerator
     fn may_produce_clashes(&self) -> bool;
 }
 
-pub fn resolve(dc: &DirContents<Vec<FnInfo>>, config: &NamingConfig) -> Box<dyn StemGenerator>
+
+pub fn resolve(dc: &read_files::DirContents<Vec<FnInfo>>, config: &NamingConfig) -> Box<dyn StemGenerator>
 {
     let num_gen = num_generator_for(dc, config);
     if let Some(fps) = config.format.as_ref() {
@@ -80,8 +81,7 @@ impl StemGenerator for FormatGenerator
         !self.format.iter().find(guaranties_no_clashes).is_some()
     }
 }
-
-pub fn num_generator_for(dc: &DirContents<Vec<FnInfo>>, config: &NamingConfig) -> SequentialNumGenerator
+pub fn num_generator_for(dc: &read_files::DirContents<Vec<FnInfo>>, config: &NamingConfig) -> SequentialNumGenerator
 {
     let num_stems = num_stems_in(dc);
     let max_stem_number = {
@@ -91,7 +91,7 @@ pub fn num_generator_for(dc: &DirContents<Vec<FnInfo>>, config: &NamingConfig) -
     SequentialNumGenerator::new(config.start_num, max_stem_number, config.min_width)
 }
 
-fn num_stems_in(x: &DirContents<Vec<FnInfo>>) -> usize
+fn num_stems_in(x: &read_files::DirContents<Vec<FnInfo>>) -> usize
 {
     let mut ret_val = x.files.len();
     for sub_dir in x.sub_dirs.iter() {

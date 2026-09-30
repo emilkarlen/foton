@@ -1,7 +1,7 @@
 use super::CmdConfig;
 use crate::command::ExecutableCmd;
 use crate::common::ext_filter_cli;
-use crate::rename::config::{NamingConfigCli, ReadConfig};
+use crate::rename::config::{NamingConfigCli};
 use clap::builder::*;
 use clap::{value_parser, ArgMatches};
 use std::path::PathBuf;
@@ -57,9 +57,10 @@ pub fn parse_cli_args(args: &ArgMatches) -> Box<dyn ExecutableCmd>
     Box::from(CmdConfig {
         execute: args.get_flag(OPT_EXECUTE_ID),
         directory: PathBuf::from(&d),
-        read_config: ReadConfig {
+        read_config: crate::common::read_files::ReadConfig {
             recursive: args.get_flag(OPT_RECURSIVE_ID),
             extensions_filter: ext_filter_cli::parse_extensions_filter(args),
+            include_hidden_sub_dirs: true,
         },
         naming_config: NamingConfigCli {
             start_num: *args.get_one::<usize>(OPT_START_NUM_ID).unwrap(),

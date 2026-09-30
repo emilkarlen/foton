@@ -1,4 +1,6 @@
+use std::ffi::OsString;
 use std::path::{Path, PathBuf};
+use crate::utils;
 
 #[derive(Debug)]
 pub struct Rename
@@ -34,11 +36,16 @@ pub struct FnInfo
 
 impl FnInfo
 {
-    pub fn from(x: (String, Vec<String>)) -> FnInfo
+    pub fn from_os_str(stem: &OsString, exts: &Vec<OsString>) -> FnInfo
     {
         FnInfo {
-            stem: x.0,
-            extensions: x.1,
+            stem: utils::from_os_str(stem),
+            extensions: exts.iter().map(|x| utils::from_os_str(x.as_os_str())).collect(),
         }
+    }
+
+    pub fn cmp(&self, other: &FnInfo) -> core::cmp::Ordering
+    {
+        self.stem.cmp(&other.stem)
     }
 }

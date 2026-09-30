@@ -1,116 +1,37 @@
 use super::common::FnInfo;
-use super::config::ReadConfig;
-use crate::common::dir_contents::DirContents;
-use crate::common::ext_filter::ExtensionsFilter;
-use crate::utils::from_os_str;
+use crate::common;
+use crate::common::read_files::DirContents;
+pub(crate) use crate::common::read_files::{Extension, FileNameStem, PathWithName, ReadConfig};
 use std::collections::HashMap;
-use std::ffi::OsString;
-use std::fs;
-use std::fs::FileType;
 use std::io;
-use std::ops::Deref;
-use std::path::{Path, PathBuf};
 
-pub fn rev_sorted_file_infos(dir: PathBuf, config: &ReadConfig) -> io::Result<DirContents<Vec<FnInfo>>>
+pub fn rev_sorted_file_infos(dir: PathWithName, config: &ReadConfig) -> io::Result<DirContents<Vec<FnInfo>>>
 {
-    let (sub_dir_names, files) = rev_sorted_file_infos_non_rec(&dir, config.extensions_filter.deref())?;
-    let mut sub_dir_names = sub_dir_names;
-    let mut sub_dirs = Vec::with_capacity(sub_dir_names.len());
-    if config.recursive {
-        for sub_dir_path in sub_dir_names.drain(..).rev() {
-            let sub_dir_contents = rev_sorted_file_infos(sub_dir_path, config)?;
-            sub_dirs.push(sub_dir_contents);
-        }
+    let gb_stem = common::read_files::group_by_file_name_stem(dir, config)?;
+    Ok(to_fn_info_dc(gb_stem))
+}
+
+fn to_fn_info_dc(dc: DirContents<HashMap<FileNameStem, Vec<Extension>>>) -> DirContents<Vec<FnInfo>>
+{
+    let DirContents { dir, mut sub_dirs, mut files } = dc;
+    
+    let mut sub_dirs1 = Vec::with_capacity(sub_dirs.len());
+    for sub_dir in sub_dirs.drain(..) {
+        sub_dirs1.push(to_fn_info_dc(sub_dir));
     }
-    Ok(DirContents{dir, sub_dirs, files, })
-}
-fn rev_sorted_file_infos_non_rec(dir: &PathBuf, extensions_filter: &dyn ExtensionsFilter) -> io::Result<(Vec<PathBuf>, Vec<FnInfo>)>
-{
-    let (sub_dirs, files) = read_files(dir, extensions_filter)?;
-    let mut sorted_sub_dirs = sub_dirs;
-    sorted_sub_dirs.sort();
-    let mut rev_sorted_fnis: Vec<_> = files.into_iter().map(FnInfo::from).collect();
-    rev_sorted_fnis.sort_by(|x, y| y.stem.cmp(&x.stem));
-    Ok((sorted_sub_dirs, rev_sorted_fnis))
-}
-
-fn read_files(dir: &Path, extensions_filter: &dyn ExtensionsFilter) -> io::Result<(Vec<PathBuf>, HashMap<String, Vec<String>>)>
-{
-    let mut sub_dirs: Vec<PathBuf> = Vec::new();
-    let mut files: HashMap<String, Vec<String>> = HashMap::new();
-    let entries = dir.read_dir()?;
-    for mb_entry in entries {
-        let entry = mb_entry?;
-        let f_type = entry.file_type()?;
-        let mb_dof = DirOrFile::from(&f_type, &entry);
-        if let Some(dof) = mb_dof {
-            match dof {
-                DirOrFile::ADir(path) => { sub_dirs.push(path) }
-                DirOrFile::AFile(se) => {
-                    if !extensions_filter.accepts_os(&se.ext_os) {
-                        continue;
-                    }
-                    match files.get_mut(&se.stem) {
-                        None => {
-                            files.insert(se.stem, vec![se.ext]);
-                        }
-                        Some(exts) => {
-                            exts.push(se.ext);
-                        }
-                    }
-                }
-            }
-        }
+    DirContents {
+        dir: dir,
+        files: to_fn_info_files(&mut files),
+        sub_dirs: sub_dirs1,
     }
-    for exts in files.values_mut() {
-        exts.sort();
+}
+
+fn to_fn_info_files(files: &mut HashMap<FileNameStem, Vec<Extension>>) -> Vec<FnInfo>
+{
+    let mut ret_val = Vec::new();
+    for (stem, exts) in files.drain() {
+        ret_val.push(FnInfo::from_os_str(&stem, &exts));
     }
-    Ok((sub_dirs, files))
-}
-
-enum DirOrFile
-{
-    ADir(PathBuf),
-    AFile(StemAndExt),
-}
-
-impl DirOrFile
-{
-    fn from(f_type: &FileType, entry: &fs::DirEntry) -> Option<DirOrFile>
-    {
-        if f_type.is_dir() {
-            Some(DirOrFile::ADir(entry.path()))
-        }
-        else if f_type.is_file() {
-            let x = StemAndExt::from(entry)?;
-            Some(DirOrFile::AFile(x))
-        }
-        else {
-            None
-        }
-    }
-
-}
-
-struct StemAndExt
-{
-    stem: String,
-    ext: String,
-    ext_os: OsString,
-}
-
-impl StemAndExt
-{
-    fn from(entry: &fs::DirEntry) -> Option<StemAndExt>
-    {
-        let path = entry.path();
-        let stem = path.file_stem()?;
-        let ext = path.extension()?;
-        Some(StemAndExt {
-            stem: from_os_str(stem),
-            ext: from_os_str(ext),
-            ext_os: OsString::from(ext),
-        }
-        )
-    }
+    ret_val.sort_by(FnInfo::cmp);
+    ret_val
 }

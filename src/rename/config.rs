@@ -1,11 +1,4 @@
-use crate::common::ext_filter::ExtensionsFilter;
 use crate::rename::custom_format::FormatPart;
-
-pub struct ReadConfig
-{
-    pub recursive: bool,
-    pub extensions_filter: Box<dyn ExtensionsFilter>,
-}
 
 pub struct NamingConfigCli
 {
