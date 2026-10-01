@@ -58,7 +58,7 @@ fn renames_of(dc: DirContents<Vec<FnInfo>>, stem_gen: &mut Box<dyn StemGenerator
     let mut files_2 = Vec::with_capacity(files.len());
     for fni in files.drain(..) {
         let ren = Rename {
-            new_stem: stem_gen.next(),
+            new_stem: stem_gen.next(fni.stem.as_str()),
             old_stem: fni.stem,
             extensions: fni.extensions,
         };

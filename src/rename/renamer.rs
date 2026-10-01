@@ -8,7 +8,7 @@ mod num_generator;
 
 pub trait StemGenerator
 {
-    fn next(&mut self) -> String;
+    fn next(&mut self, original_stem: &str) -> String;
 
     fn may_produce_clashes(&self) -> bool;
 }
@@ -32,7 +32,7 @@ struct NumOnlyGenerator
 
 impl StemGenerator for NumOnlyGenerator
 {
-    fn next(&mut self) -> String
+    fn next(&mut self, _original_stem: &str) -> String
     {
         self.generator.format()
     }
@@ -52,7 +52,7 @@ struct FormatGenerator
 
 impl StemGenerator for FormatGenerator
 {
-    fn next(&mut self) -> String
+    fn next(&mut self, original_stem: &str) -> String
     {
         let next_num =self.num_generator.format();
         let mut ret_val = String::new();
@@ -61,7 +61,8 @@ impl StemGenerator for FormatGenerator
                 FormatPart::Const(s) => ret_val.push_str(s.as_str()),
                 FormatPart::Derived(prop) => {
                     match prop {
-                        Property::Number => ret_val.push_str(&next_num)
+                        Property::Number => ret_val.push_str(&next_num),
+                        Property::Stem => ret_val.push_str(original_stem),
                     }
                 }
             }

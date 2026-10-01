@@ -4,9 +4,14 @@ use crate::rename::custom_format::Token::{TDelimBegin, TDelimEnd};
 pub enum Property
 {
     Number,
+    Stem,
 }
 
-static MY_PROPS: [(&str, Property, &str); 1] = [("NN", Property::Number, "The files sequential number")];
+static MY_PROPS: [(&str, Property, &str); 2] =
+    [
+        ("NN", Property::Number, "The files sequential number"),
+        ("stem", Property::Stem, "The files original file name stem"),
+    ];
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum FormatPart
@@ -35,7 +40,7 @@ pub fn parse(s: &str) -> Result<Vec<FormatPart>, ParseErr>
             Element::ERef(pn) => {
                 match lookup_prop(&pn) {
                     Some(p) => ret_val.push(FormatPart::Derived(p)),
-                    None => return Err(format!("Not a property: {}", &pn))
+                    None => return Err(format!("Not a format property: {}", &pn))
                 }
             }
         }
@@ -169,7 +174,7 @@ fn test_parse()
     assert_eq!(parse_from_str("{fp"),      err("Missing }"));
     assert_eq!(parse_from_str("}fp{"),     err("Unexpected }"));
     assert_eq!(parse_from_str("abc{}def"), err("Missing property name after {"));
-    assert_eq!(parse_from_str("abc{non_exist_prop}def"), err("Not a property: non_exist_prop"));
+    assert_eq!(parse_from_str("abc{non_exist_prop}def"), err("Not a format property: non_exist_prop"));
 }
 
 #[test]

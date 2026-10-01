@@ -1,0 +1,12 @@
+[act]
+
+@ BIN_DRY @[FORMAT_ARGS]@ @[DIR]@
+
+[assert]
+
+stdout equals @[REPORT_nr]@
+
+dir-contents . : matches -full
+{
+  @[DIR]@ : type dir && dir-contents matches -full @[DIR_CONTENTS_before]@
+}

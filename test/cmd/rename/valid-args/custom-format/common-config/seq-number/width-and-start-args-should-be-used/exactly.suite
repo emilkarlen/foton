@@ -17,12 +17,18 @@ exit-code == 0
 
 stderr is-empty
 
-stdout equals @[REPORT]@
-
 
 [before-assert]
 
-def string REPORT =
+def string REPORT_nr =
+<<EOF
+@[DIR]@: a.ext1 -> pfx-0008.ext1
+@[DIR]@: a.ext2 -> pfx-0008.ext2
+@[DIR]@: b.ext1 -> pfx-0009.ext1
+@[DIR]@: b.ext2 -> pfx-0009.ext2
+EOF
+
+def string REPORT_r =
 <<EOF
 @[DIR]@: a.ext1 -> pfx-0008.ext1
 @[DIR]@: a.ext2 -> pfx-0008.ext2
@@ -33,7 +39,7 @@ def string REPORT =
 @[DIR]@/a: c.ext -> pfx-0012.ext
 EOF
 
-def files-condition DIR_CONTENTS_after =
+def files-condition DIR_CONTENTS_after_r =
 {
  pfx-0008.ext1 : type file
  pfx-0008.ext2 : type file
@@ -45,4 +51,13 @@ def files-condition DIR_CONTENTS_after =
    pfx-0011.ext  : type file
    pfx-0012.ext  : type file
  }
+}
+
+def files-condition DIR_CONTENTS_after_nr =
+{
+ pfx-0008.ext1 : type file
+ pfx-0008.ext2 : type file
+ pfx-0009.ext1 : type file
+ pfx-0009.ext2 : type file
+ a : @[SUB_DIR_A_CONTENTS_MATCHES_before]@
 }

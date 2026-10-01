@@ -21,16 +21,18 @@ def files-source COMMON_DIR_CONTENTS =
 
 [before-assert]
 
+def file-matcher SUB_DIR_A_CONTENTS_MATCHES_before = type dir && dir-contents matches -full
+{
+  a.ext1 : type file
+  b.ext  : type file
+  c.ext  : type file
+}
+
 def files-condition DIR_CONTENTS_before =
 {
   a.ext1 : type file
   a.ext2 : type file
   b.ext1 : type file
   b.ext2 : type file
-  a :  type dir && dir-contents matches -full
-  {
-    a.ext1 : type file
-    b.ext  : type file
-    c.ext  : type file
-  }
+  a : @[SUB_DIR_A_CONTENTS_MATCHES_before]@
 }
