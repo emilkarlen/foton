@@ -1,10 +1,10 @@
-use clap::builder::*;
-use clap::ArgMatches;
+use super::CmdConfig;
 use crate::command::ExecutableCmd;
-use super::{CmdConfig};
-use std::path::Path;
+use crate::common::cli;
 use crate::file_exts::config::{ReadConfig, ReportConfig};
 use crate::file_exts::read_files;
+use clap::builder::*;
+use clap::ArgMatches;
 
 pub fn sub_cmd(name: &'static str) -> Command
 {
@@ -72,16 +72,8 @@ pub fn parse_cli_args(args: &ArgMatches) -> Box<dyn ExecutableCmd>
             sort_on_num_ext: args.get_flag(OPT_SORT_BY_NUM_ID),
             sort_reverse: args.get_flag(OPT_SORT_REVERSE_ID),
         },
-        directories: get_str_list_arg_as_paths(args, OPT_DIR_ID),
+        directories: cli::get_str_list_arg_as_paths(args, OPT_DIR_ID),
     })
-}
-
-fn get_str_list_arg_as_paths(args: &ArgMatches, id: &str) -> Vec<Box<Path>>
-{
-    match args.get_many::<String>(id) {
-        None => Vec::new(),
-        Some(ss) => ss.map(|s| Box::from(Path::new(&s))).collect(),
-    }
 }
 
 const HELP_ABOUT: &str =

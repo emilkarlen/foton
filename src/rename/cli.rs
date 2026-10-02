@@ -1,10 +1,10 @@
 use super::CmdConfig;
 use crate::command::ExecutableCmd;
 use crate::common::ext_filter_cli;
-use crate::rename::config::{NamingConfigCli};
+use crate::rename::config::NamingConfigCli;
 use clap::builder::*;
 use clap::{value_parser, ArgMatches};
-use std::path::PathBuf;
+use crate::common::cli::get_str_list_arg_as_paths;
 
 pub fn sub_cmd(name: &'static str) -> Command
 {
@@ -34,7 +34,7 @@ pub fn sub_cmd(name: &'static str) -> Command
         .help(OPT_RECURSIVE_HELP);
     let arg_dir = Arg::new(OPT_DIR_ID)
         .required(true)
-        .action(ArgAction::Set)
+        .action(ArgAction::Append)
         .help(OPT_DIR_HELP);
 
     let cmd = Command::new(name);
@@ -52,11 +52,9 @@ pub fn sub_cmd(name: &'static str) -> Command
 
 pub fn parse_cli_args(args: &ArgMatches) -> Box<dyn ExecutableCmd>
 {
-    let d = args.get_one::<String>(OPT_DIR_ID).expect("mandatory");
-
     Box::from(CmdConfig {
         execute: args.get_flag(OPT_EXECUTE_ID),
-        directory: PathBuf::from(&d),
+        directories: get_str_list_arg_as_paths(args, OPT_DIR_ID),
         read_config: crate::common::read_files::ReadConfig {
             recursive: args.get_flag(OPT_RECURSIVE_ID),
             extensions_filter: ext_filter_cli::parse_extensions_filter(args),
@@ -90,7 +88,7 @@ const OPT_FORMAT_HELP: &str = "Custom formatting using {NN} for file number and 
 const OPT_RECURSIVE_ID: &str = "recursive";
 const OPT_RECURSIVE_HELP: &str = "Also rename files in sub-directories.";
 const OPT_DIR_ID: &str = "DIR";
-const OPT_DIR_HELP: &str = "The directory containing files to rename.";
+const OPT_DIR_HELP: &str = "The directories containing files to rename.";
 const OPT_EXECUTE_ID: &str = "execute";
 const OPT_EXECUTE_SHORT: char = 'x';
 const OPT_EXECUTE_HELP: &str = "Do execute the action (default is to run dry)";

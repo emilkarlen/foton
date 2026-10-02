@@ -1,0 +1,87 @@
+[cases]
+
+*.case
+
+
+[setup]
+
+including ../common.xly
+
+
+[assert]
+
+exit-code == 0
+
+stderr is-empty
+
+stdout equals @[DIR_OUTPUT]@@[DIR_OUTPUT_2]@
+
+
+[setup]
+
+def string DIR_2       = 00-alphabetically-first
+def string SUB_DIR_2_1 = another-sub-dir
+
+def string FN_D2_11_ROOT_DIR_E1    = 'bruins.ext4'
+def string FN_D2_11_ROOT_DIR_E1_rn = '11.ext4'
+def string FN_D2_11_ROOT_DIR_E2    = 'bruins.ext5'
+def string FN_D2_11_ROOT_DIR_E2_rn = '11.ext5'
+def string FN_D2_11_ROOT_DIR_E3    = 'bruins.ext6'
+def string FN_D2_11_ROOT_DIR_E3_rn = '11.ext6'
+
+def string FN_D2_12_SUB_DIR1_E1    = 'dodgers.ext1'
+def string FN_D2_12_SUB_DIR1_E1_rn = '12.ext1'
+def string FN_D2_12_SUB_DIR1_E2    = 'dodgers.ext2'
+def string FN_D2_12_SUB_DIR1_E2_rn = '12.ext2'
+
+dir @[DIR_2]@ =
+{
+  file @[FN_D2_11_ROOT_DIR_E1]@ = @[FN_D2_11_ROOT_DIR_E1]@
+  file @[FN_D2_11_ROOT_DIR_E2]@ = @[FN_D2_11_ROOT_DIR_E2]@
+  file @[FN_D2_11_ROOT_DIR_E3]@ = @[FN_D2_11_ROOT_DIR_E3]@
+
+  dir @[SUB_DIR_2_1]@ =
+  {
+    file @[FN_D2_12_SUB_DIR1_E1]@ = @[FN_D2_12_SUB_DIR1_E1]@
+    file @[FN_D2_12_SUB_DIR1_E2]@ = @[FN_D2_12_SUB_DIR1_E2]@
+  }
+}
+
+[before-assert]
+
+def string DIR_OUTPUT_2 =
+<<EOF
+@[DIR_2]@: @[FN_D2_11_ROOT_DIR_E1]@ -> @[FN_D2_11_ROOT_DIR_E1_rn]@
+@[DIR_2]@: @[FN_D2_11_ROOT_DIR_E2]@ -> @[FN_D2_11_ROOT_DIR_E2_rn]@
+@[DIR_2]@: @[FN_D2_11_ROOT_DIR_E3]@ -> @[FN_D2_11_ROOT_DIR_E3_rn]@
+@[DIR_2]@/@[SUB_DIR_2_1]@: @[FN_D2_12_SUB_DIR1_E1]@ -> @[FN_D2_12_SUB_DIR1_E1_rn]@
+@[DIR_2]@/@[SUB_DIR_2_1]@: @[FN_D2_12_SUB_DIR1_E2]@ -> @[FN_D2_12_SUB_DIR1_E2_rn]@
+EOF
+
+def file-matcher DIR_W_ORIG_FILES_2 =
+  type dir && dir-contents matches -full
+{
+  @[FN_D2_11_ROOT_DIR_E1]@ : type file && contents equals @[FN_D2_11_ROOT_DIR_E1]@
+  @[FN_D2_11_ROOT_DIR_E2]@ : type file && contents equals @[FN_D2_11_ROOT_DIR_E2]@
+  @[FN_D2_11_ROOT_DIR_E3]@ : type file && contents equals @[FN_D2_11_ROOT_DIR_E3]@
+
+  @[SUB_DIR_2_1]@ : type dir && dir-contents matches -full
+  {
+    @[FN_D2_12_SUB_DIR1_E1]@ : type file && contents equals @[FN_D2_12_SUB_DIR1_E1]@
+    @[FN_D2_12_SUB_DIR1_E2]@ : type file && contents equals @[FN_D2_12_SUB_DIR1_E2]@
+  }
+}
+
+def file-matcher DIR_W_RENAMED_FILES_2 =
+  type dir && dir-contents matches -full
+{
+  @[FN_D2_11_ROOT_DIR_E1_rn]@ : type file && contents equals @[FN_D2_11_ROOT_DIR_E1]@
+  @[FN_D2_11_ROOT_DIR_E2_rn]@ : type file && contents equals @[FN_D2_11_ROOT_DIR_E2]@
+  @[FN_D2_11_ROOT_DIR_E3_rn]@ : type file && contents equals @[FN_D2_11_ROOT_DIR_E3]@
+
+  @[SUB_DIR_2_1]@ : type dir && dir-contents matches -full
+  {
+    @[FN_D2_12_SUB_DIR1_E1_rn]@ : type file && contents equals @[FN_D2_12_SUB_DIR1_E1]@
+    @[FN_D2_12_SUB_DIR1_E2_rn]@ : type file && contents equals @[FN_D2_12_SUB_DIR1_E2]@
+  }
+}

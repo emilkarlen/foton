@@ -5,7 +5,7 @@ use std::ffi::OsString;
 use std::io;
 use std::path::{Path, PathBuf};
 
-pub fn execute(dirs: &Vec<Box<Path>>, config: &ReadConfig) -> io::Result<HashMap<OsString, usize>> {
+pub fn execute(dirs: &Vec<PathBuf>, config: &ReadConfig) -> io::Result<HashMap<OsString, usize>> {
     let mut collection: HashMap<OsString, usize> = HashMap::new();
     for dir in dirs.iter() {
         read_files(dir, config, &mut collection)?;

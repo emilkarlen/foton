@@ -7,6 +7,14 @@ pub enum Property
     Stem,
 }
 
+pub fn guaranties_no_clashes(x: &Property) -> bool
+{
+    match x {
+        Property::Number => true,
+        Property::Stem => true,
+    }
+}
+
 static MY_PROPS: [(&str, Property, &str); 2] =
     [
         ("NN", Property::Number, "The files sequential number"),

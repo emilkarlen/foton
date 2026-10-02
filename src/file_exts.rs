@@ -3,18 +3,18 @@ mod read_files;
 mod report;
 mod config;
 
-use std::io;
-use std::path::Path;
 use crate::command;
 use crate::command::{CmdError, ExecutableCmd};
 use crate::common::arg_validation;
-use crate::file_exts::config::{ReportConfig, ReadConfig};
+use crate::file_exts::config::{ReadConfig, ReportConfig};
+use std::io;
+use std::path::PathBuf;
 
 pub struct CmdConfig
 {
     pub read_config: ReadConfig,
     pub report_config: ReportConfig,
-    pub directories: Vec<Box<Path>>,
+    pub directories: Vec<PathBuf>,
 }
 
 impl ExecutableCmd for CmdConfig

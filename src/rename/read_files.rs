@@ -5,10 +5,14 @@ pub(crate) use crate::common::read_files::{Extension, FileNameStem, PathWithName
 use std::collections::HashMap;
 use std::io;
 
-pub fn rev_sorted_file_infos(dir: PathWithName, config: &ReadConfig) -> io::Result<DirContents<Vec<FnInfo>>>
+pub fn rev_sorted_file_infos(dirs: Vec<PathWithName>, config: &ReadConfig) -> io::Result<Vec<DirContents<Vec<FnInfo>>>>
 {
-    let gb_stem = common::read_files::group_by_file_name_stem(dir, config)?;
-    Ok(to_fn_info_dc(gb_stem))
+    let mut ret_val = Vec::with_capacity(dirs.len());
+    for dir in dirs {
+        let gb_stem = common::read_files::group_by_file_name_stem(dir, config)?;
+        ret_val.push(to_fn_info_dc(gb_stem));
+    }
+    Ok(ret_val)
 }
 
 fn to_fn_info_dc(dc: DirContents<HashMap<FileNameStem, Vec<Extension>>>) -> DirContents<Vec<FnInfo>>

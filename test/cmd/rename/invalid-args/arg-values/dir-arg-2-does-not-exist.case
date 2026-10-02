@@ -1,0 +1,7 @@
+[act]
+
+@ BIN_CMD existing-dir non-existing-dir
+
+[setup]
+
+dir existing-dir
