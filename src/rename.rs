@@ -8,13 +8,12 @@ mod renamer;
 mod read_files;
 mod main;
 mod naming;
+pub mod cli_validation;
 
 use crate::command;
 use crate::command::{CmdError, ExeError, ExecutableCmd};
-use crate::common::arg_validation;
 use crate::common::read_files::PathWithName;
 use crate::rename::config::{NamingConfig, NamingConfigCli};
-use crate::rename::custom_format::FormatPart;
 use std::path::PathBuf;
 
 pub struct CmdConfig
@@ -38,42 +37,11 @@ impl CmdConfig
 {
     fn validate_args(&self) -> Result<(Vec<PathWithName>, NamingConfig), String>
     {
-        for dir in self.directories.iter() {
-            arg_validation::is_existing_dir(dir.as_ref())?;
-        }
-        let naming_config = self.resolve_naming_args()?;
-        let mut dirs = Vec::with_capacity(self.directories.len());
-        for dir in self.directories.iter() {
-            let pwn = arg_validation::is_path_with_name(dir, "DIR")?;
-            dirs.push(pwn);
-        }
-        Ok((dirs, naming_config))
-    }
-
-    fn resolve_naming_args(&self) -> Result<NamingConfig, String>
-    {
-        match &self.naming_config.format {
-            None => self.nc_of(None),
-            Some(format_str) => {
-                let format_parts = custom_format::parse(format_str)?;
-                self.nc_of(Some(format_parts))
-            }
-        }
+        cli_validation::validate_args(&self.directories, &self.naming_config)
     }
 
     fn with_valid_args(&self, dirs: Vec<PathWithName>, naming_config: &NamingConfig) -> Result<(), ExeError>
     {
         main::main(dirs, self.execute, &self.read_config, naming_config)
     }
-
-    fn nc_of(&self, format: Option<Vec<FormatPart>>) -> Result<NamingConfig, String> {
-        Ok(self.nc_of_plain(format))
-    }
-
-    fn nc_of_plain(&self, format: Option<Vec<FormatPart>>) -> NamingConfig {
-        NamingConfig {
-            start_num: self.naming_config.start_num,
-            min_width: self.naming_config.min_width,
-            format: format,
-        }    }
 }

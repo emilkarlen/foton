@@ -1,0 +1,7 @@
+[act]
+
+@ BIN_CMD --format '{NN}-/-{stem}' a-dir
+
+[setup]
+
+dir a-dir
