@@ -14,6 +14,8 @@ pub fn report_renames(dcs: &Vec<DirContents<Vec<Rename>>>)
 
 fn report_renames_dc(dc: &DirContents<Vec<Rename>>)
 {
+    // dbg!("report_renames_dc");
+    // dbg!(&dc);
     for rename in dc.files.iter() {
         for (old_fn, new_fn) in rename.renames().iter() {
             report_rename(&dc.dir.path, (old_fn, new_fn));

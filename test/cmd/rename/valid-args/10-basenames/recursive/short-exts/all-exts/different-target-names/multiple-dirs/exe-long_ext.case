@@ -1,0 +1,11 @@
+[act]
+
+@ BIN_EXE -r --long @[DIR]@ @[DIR_2]@
+
+[assert]
+
+dir-contents . : matches -full
+{
+  @[DIR]@   : @[DIR_W_RENAMED_FILES]@
+  @[DIR_2]@ : @[DIR_W_RENAMED_FILES_2]@
+}

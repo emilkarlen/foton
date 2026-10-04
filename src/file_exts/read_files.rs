@@ -1,4 +1,4 @@
-use crate::common::fs;
+use crate::common::path;
 use crate::file_exts::config::ReadConfig;
 use std::collections::HashMap;
 use std::ffi::OsString;
@@ -13,31 +13,6 @@ pub fn execute(dirs: &Vec<PathBuf>, config: &ReadConfig) -> io::Result<HashMap<O
     Ok(collection)
 }
 
-pub fn get_short_ext(path: &Path) -> Option<OsString>
-{
-    let ext = path.extension()?;
-    Some(ext.to_os_string())
-}
-pub fn get_long_ext(path: &Path) -> Option<OsString>
-{
-    // A BIT UNSAFE
-    // Assumes that the dot character is represented by one byte.
-    //
-    // Might not work on Windows.
-
-    let name = path.file_name()?.to_str()?;
-    let prefix = path.file_prefix()?.to_str()?;
-    if name.len() == prefix.len() {
-        None
-    }
-    else {
-        // UNSAFETY IS HERE!
-        let ret_val_str = &name[prefix.len()+1..];
-        let ret_val_oss = OsString::from(ret_val_str);
-        Some(ret_val_oss)
-    }
-}
-
 fn read_files(dir: &Path, config: &ReadConfig, collection: &mut HashMap<OsString, usize>) -> io::Result<()>
 {
     let mut sub_dirs: Vec<PathBuf> = Vec::new();
@@ -48,15 +23,17 @@ fn read_files(dir: &Path, config: &ReadConfig, collection: &mut HashMap<OsString
         let f_type = entry.file_type()?;
         if f_type.is_dir() {
             if let Some(name) = path.file_name() {
-                if config.include_hidden_sub_dirs || !fs::is_hidden(name) {
+                if config.include_hidden_sub_dirs || !path::is_hidden(name) {
                 sub_dirs.push(path);
                     }
             }
         } else if f_type.is_file() {
-            if let Some(ext) = (config.get_ext)(&path) {
-                collection.entry(ext).and_modify(|n| *n += 1).or_insert(1);
+            if let Some(file_name) = path.file_name() {
+            if let (_, Some(ext)) = (config.split_stem_and_ext)(file_name) {
+                collection.entry(OsString::from(ext)).and_modify(|n| *n += 1).or_insert(1);
             }
         }
+    }
     }
     if config.recursive {
         for sub_dir in sub_dirs.iter() {

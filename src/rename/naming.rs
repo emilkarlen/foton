@@ -66,6 +66,7 @@ fn renames_of_dc(dc: DirContents<Vec<FnInfo>>, stem_gen: &mut Box<dyn StemGenera
             old_stem: fni.stem,
             extensions: fni.extensions,
         };
+        // dbg!(&ren);
         files_2.push(ren);
 
     }

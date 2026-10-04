@@ -1,0 +1,13 @@
+[act]
+
+@ BIN_EXE -r @[DIR]@
+
+
+[assert]
+
+stdout equals @[REPORT_short]@
+
+dir-contents . : matches -full
+{
+  @[DIR]@ : @[DIR_W_RENAMED_FILES_short]@
+}

@@ -1,4 +1,4 @@
 [suites]
 
-all-exts
-some-exts
+short-exts
+long-exts

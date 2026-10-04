@@ -1,0 +1,44 @@
+[cases]
+
+*.case
+
+[setup]
+
+including ../common.xly
+
+[setup]
+
+def string FN_A = 'a.ext'
+def string FN_A_1 = '1.ext'
+
+def string DIR = 'the-dir'
+
+dir @[DIR]@ =
+{
+  file @[FN_A]@ = @[FN_A]@
+}
+
+[before-assert]
+
+def file-matcher DIR_W_ORIG_FILES =
+  type dir && dir-contents matches -full
+    {
+      @[FN_A]@ : type file && contents equals @[FN_A]@
+    }
+
+def file-matcher DIR_W_RENAMED_FILES =
+  type dir && dir-contents matches -full
+    {
+      @[FN_A_1]@ : type file && contents equals @[FN_A]@
+    }
+
+[assert]
+
+exit-code == 0
+
+stderr is-empty
+
+stdout equals
+<<EOF
+@[DIR]@: @[FN_A]@ -> @[FN_A_1]@
+EOF

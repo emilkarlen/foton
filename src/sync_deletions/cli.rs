@@ -64,6 +64,7 @@ pub fn parse_cli_args(args: &ArgMatches) -> Box<dyn ExecutableCmd>
             recursive: args.get_flag(OPT_RECURSIVE_ID),
             include_hidden_sub_dirs: !args.get_flag(OPT_IGNORE_HIDDEN_SUB_DIRS_ID),
             extensions_filter: ext_filter_cli::parse_extensions_filter(args),
+            split_stem_and_ext: crate::common::path::split_shortest_ext,
         }
     })
 }

@@ -1,0 +1,124 @@
+[cases]
+
+*.case
+
+
+[setup]
+
+including ../common.xly
+
+
+[assert]
+
+exit-code == 0
+
+stderr is-empty
+
+
+[before-assert]
+
+def string REPORT_short =
+<<EOF
+@[DIR]@: @[FN_01_ROOT_DIR_E1]@ -> @[FN_01_ROOT_DIR_E1_short]@
+@[DIR]@: @[FN_01_ROOT_DIR_E2]@ -> @[FN_01_ROOT_DIR_E2_short]@
+@[DIR]@: @[FN_01_ROOT_DIR_E3]@ -> @[FN_01_ROOT_DIR_E3_short]@
+@[DIR]@/@[SUB_DIR1]@: @[FN_02_SUB_DIR1_E1]@ -> @[FN_02_SUB_DIR1_E1_short]@
+@[DIR]@/@[SUB_DIR1]@: @[FN_02_SUB_DIR1_E2]@ -> @[FN_02_SUB_DIR1_E2_short]@
+@[DIR]@/@[SUB_DIR1]@: @[FN_02_SUB_DIR1_E3]@ -> @[FN_02_SUB_DIR1_E3_short]@
+@[DIR]@/@[SUB_DIR1]@: @[FN_03_SUB_DIR1_E1]@ -> @[FN_03_SUB_DIR1_E1_short]@
+@[DIR]@/@[SUB_DIR1]@: @[FN_03_SUB_DIR1_E2]@ -> @[FN_03_SUB_DIR1_E2_short]@
+@[DIR]@/@[SUB_DIR2]@: @[FN_04_SUB_DIR2_E1]@ -> @[FN_04_SUB_DIR2_E1_short]@
+@[DIR]@/@[SUB_DIR2]@: @[FN_04_SUB_DIR2_E2]@ -> @[FN_04_SUB_DIR2_E2_short]@
+@[DIR]@/@[SUB_DIR3]@: @[FN_05_SUB_DIR3_E1]@ -> @[FN_05_SUB_DIR3_E1_short]@
+@[DIR]@/@[SUB_DIR3]@: @[FN_06_SUB_DIR3_E1]@ -> @[FN_06_SUB_DIR3_E1_short]@
+@[DIR]@/@[SUB_DIR3]@: @[FN_07_SUB_DIR3_E1]@ -> @[FN_07_SUB_DIR3_E1_short]@
+@[DIR]@/@[SUB_DIR3]@: @[FN_08_SUB_DIR3_E1]@ -> @[FN_08_SUB_DIR3_E1_short]@
+@[DIR]@/@[SUB_DIR3]@: @[FN_09_SUB_DIR3_E1]@ -> @[FN_09_SUB_DIR3_E1_short]@
+@[DIR]@/@[SUB_DIR3]@: @[FN_10_SUB_DIR3_E1]@ -> @[FN_10_SUB_DIR3_E1_short]@
+EOF
+
+def file-matcher DIR_W_RENAMED_FILES_short =
+  type dir && dir-contents matches -full
+{
+  @[FN_01_ROOT_DIR_E1_short]@ : type file && contents equals @[FN_01_ROOT_DIR_E1]@
+  @[FN_01_ROOT_DIR_E2_short]@ : type file && contents equals @[FN_01_ROOT_DIR_E2]@
+  @[FN_01_ROOT_DIR_E3_short]@ : type file && contents equals @[FN_01_ROOT_DIR_E3]@
+
+  @[SUB_DIR1]@ : type dir && dir-contents matches -full
+  {
+    @[FN_02_SUB_DIR1_E1_short]@ : type file && contents equals @[FN_02_SUB_DIR1_E1]@
+    @[FN_02_SUB_DIR1_E2_short]@ : type file && contents equals @[FN_02_SUB_DIR1_E2]@
+    @[FN_02_SUB_DIR1_E3_short]@ : type file && contents equals @[FN_02_SUB_DIR1_E3]@
+    @[FN_03_SUB_DIR1_E1_short]@ : type file && contents equals @[FN_03_SUB_DIR1_E1]@
+    @[FN_03_SUB_DIR1_E2_short]@ : type file && contents equals @[FN_03_SUB_DIR1_E2]@
+  }
+
+  @[SUB_DIR2]@ : type dir && dir-contents matches -full
+  {
+    @[FN_04_SUB_DIR2_E1_short]@ : type file && contents equals @[FN_04_SUB_DIR2_E1]@
+    @[FN_04_SUB_DIR2_E2_short]@ : type file && contents equals @[FN_04_SUB_DIR2_E2]@
+  }
+
+  @[SUB_DIR3]@ : type dir && dir-contents matches -full
+  {
+    @[FN_05_SUB_DIR3_E1_short]@ : type file && contents equals @[FN_05_SUB_DIR3_E1]@
+    @[FN_06_SUB_DIR3_E1_short]@ : type file && contents equals @[FN_06_SUB_DIR3_E1]@
+    @[FN_07_SUB_DIR3_E1_short]@ : type file && contents equals @[FN_07_SUB_DIR3_E1]@
+    @[FN_08_SUB_DIR3_E1_short]@ : type file && contents equals @[FN_08_SUB_DIR3_E1]@
+    @[FN_09_SUB_DIR3_E1_short]@ : type file && contents equals @[FN_09_SUB_DIR3_E1]@
+    @[FN_10_SUB_DIR3_E1_short]@ : type file && contents equals @[FN_10_SUB_DIR3_E1]@
+  }
+}
+
+def string REPORT_long =
+<<EOF
+@[DIR]@: @[FN_01_ROOT_DIR_E1]@ -> @[FN_01_ROOT_DIR_E1_long]@
+@[DIR]@: @[FN_01_ROOT_DIR_E2]@ -> @[FN_01_ROOT_DIR_E2_long]@
+@[DIR]@: @[FN_01_ROOT_DIR_E3]@ -> @[FN_01_ROOT_DIR_E3_long]@
+@[DIR]@/@[SUB_DIR1]@: @[FN_02_SUB_DIR1_E1]@ -> @[FN_02_SUB_DIR1_E1_long]@
+@[DIR]@/@[SUB_DIR1]@: @[FN_02_SUB_DIR1_E2]@ -> @[FN_02_SUB_DIR1_E2_long]@
+@[DIR]@/@[SUB_DIR1]@: @[FN_02_SUB_DIR1_E3]@ -> @[FN_02_SUB_DIR1_E3_long]@
+@[DIR]@/@[SUB_DIR1]@: @[FN_03_SUB_DIR1_E1]@ -> @[FN_03_SUB_DIR1_E1_long]@
+@[DIR]@/@[SUB_DIR1]@: @[FN_03_SUB_DIR1_E2]@ -> @[FN_03_SUB_DIR1_E2_long]@
+@[DIR]@/@[SUB_DIR2]@: @[FN_04_SUB_DIR2_E1]@ -> @[FN_04_SUB_DIR2_E1_long]@
+@[DIR]@/@[SUB_DIR2]@: @[FN_04_SUB_DIR2_E2]@ -> @[FN_04_SUB_DIR2_E2_long]@
+@[DIR]@/@[SUB_DIR3]@: @[FN_05_SUB_DIR3_E1]@ -> @[FN_05_SUB_DIR3_E1_long]@
+@[DIR]@/@[SUB_DIR3]@: @[FN_06_SUB_DIR3_E1]@ -> @[FN_06_SUB_DIR3_E1_long]@
+@[DIR]@/@[SUB_DIR3]@: @[FN_07_SUB_DIR3_E1]@ -> @[FN_07_SUB_DIR3_E1_long]@
+@[DIR]@/@[SUB_DIR3]@: @[FN_08_SUB_DIR3_E1]@ -> @[FN_08_SUB_DIR3_E1_long]@
+@[DIR]@/@[SUB_DIR3]@: @[FN_09_SUB_DIR3_E1]@ -> @[FN_09_SUB_DIR3_E1_long]@
+@[DIR]@/@[SUB_DIR3]@: @[FN_10_SUB_DIR3_E1]@ -> @[FN_10_SUB_DIR3_E1_long]@
+EOF
+
+def file-matcher DIR_W_RENAMED_FILES_long =
+  type dir && dir-contents matches -full
+{
+  @[FN_01_ROOT_DIR_E1_long]@ : type file && contents equals @[FN_01_ROOT_DIR_E1]@
+  @[FN_01_ROOT_DIR_E2_long]@ : type file && contents equals @[FN_01_ROOT_DIR_E2]@
+  @[FN_01_ROOT_DIR_E3_long]@ : type file && contents equals @[FN_01_ROOT_DIR_E3]@
+
+  @[SUB_DIR1]@ : type dir && dir-contents matches -full
+  {
+    @[FN_02_SUB_DIR1_E1_long]@ : type file && contents equals @[FN_02_SUB_DIR1_E1]@
+    @[FN_02_SUB_DIR1_E2_long]@ : type file && contents equals @[FN_02_SUB_DIR1_E2]@
+    @[FN_02_SUB_DIR1_E3_long]@ : type file && contents equals @[FN_02_SUB_DIR1_E3]@
+    @[FN_03_SUB_DIR1_E1_long]@ : type file && contents equals @[FN_03_SUB_DIR1_E1]@
+    @[FN_03_SUB_DIR1_E2_long]@ : type file && contents equals @[FN_03_SUB_DIR1_E2]@
+  }
+
+  @[SUB_DIR2]@ : type dir && dir-contents matches -full
+  {
+    @[FN_04_SUB_DIR2_E1_long]@ : type file && contents equals @[FN_04_SUB_DIR2_E1]@
+    @[FN_04_SUB_DIR2_E2_long]@ : type file && contents equals @[FN_04_SUB_DIR2_E2]@
+  }
+
+  @[SUB_DIR3]@ : type dir && dir-contents matches -full
+  {
+    @[FN_05_SUB_DIR3_E1_long]@ : type file && contents equals @[FN_05_SUB_DIR3_E1]@
+    @[FN_06_SUB_DIR3_E1_long]@ : type file && contents equals @[FN_06_SUB_DIR3_E1]@
+    @[FN_07_SUB_DIR3_E1_long]@ : type file && contents equals @[FN_07_SUB_DIR3_E1]@
+    @[FN_08_SUB_DIR3_E1_long]@ : type file && contents equals @[FN_08_SUB_DIR3_E1]@
+    @[FN_09_SUB_DIR3_E1_long]@ : type file && contents equals @[FN_09_SUB_DIR3_E1]@
+    @[FN_10_SUB_DIR3_E1_long]@ : type file && contents equals @[FN_10_SUB_DIR3_E1]@
+  }
+}

@@ -1,0 +1,12 @@
+[act]
+
+@ BIN_DRY @[EXT_FILTER_OPTS_short]@ @[DIR]@
+
+[assert]
+
+stdout equals @[REPORT_short]@
+
+dir-contents . : matches -full
+{
+  @[DIR]@ : @[DIR_W_ORIG_FILES]@
+}

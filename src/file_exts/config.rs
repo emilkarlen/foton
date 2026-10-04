@@ -1,11 +1,11 @@
-use std::ffi::OsString;
-use std::path::Path;
+use std::ffi::OsStr;
 
 pub struct ReadConfig
 {
     pub recursive: bool,
     pub include_hidden_sub_dirs: bool,
-    pub get_ext: fn(&Path) -> Option<OsString>,
+    pub split_stem_and_ext: fn(&OsStr) -> (&OsStr, Option<&OsStr>)
+
 }
 
 pub struct ReportConfig

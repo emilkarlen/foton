@@ -1,0 +1,56 @@
+[cases]
+
+*.case
+
+[setup]
+
+including ../common.xly
+
+[setup]
+
+def string FN_01       = 'a.ext1.ext2'
+def string FN_01_long  = '1.ext1.ext2'
+def string FN_01_short = '1.ext2'
+
+def string DIR = 'the-dir'
+
+dir @[DIR]@ =
+{
+  file @[FN_01]@ = @[FN_01]@
+}
+
+[before-assert]
+
+def file-matcher DIR_W_ORIG_FILES =
+  type dir && dir-contents matches -full
+    {
+      @[FN_01]@ : type file && contents equals @[FN_01]@
+    }
+
+def file-matcher DIR_W_RENAMED_FILES_long =
+  type dir && dir-contents matches -full
+    {
+      @[FN_01_long]@ : type file && contents equals @[FN_01]@
+    }
+
+def file-matcher DIR_W_RENAMED_FILES_short =
+  type dir && dir-contents matches -full
+    {
+      @[FN_01_short]@ : type file && contents equals @[FN_01]@
+    }
+
+[assert]
+
+exit-code == 0
+
+stderr is-empty
+
+def string REPORT_long =
+<<EOF
+@[DIR]@: @[FN_01]@ -> @[FN_01_long]@
+EOF
+
+def string REPORT_short =
+<<EOF
+@[DIR]@: @[FN_01]@ -> @[FN_01_short]@
+EOF

@@ -2,7 +2,6 @@ use super::CmdConfig;
 use crate::command::ExecutableCmd;
 use crate::common::cli;
 use crate::file_exts::config::{ReadConfig, ReportConfig};
-use crate::file_exts::read_files;
 use clap::builder::*;
 use clap::ArgMatches;
 
@@ -32,10 +31,10 @@ pub fn sub_cmd(name: &'static str) -> Command
         .short('R')
         .action(ArgAction::SetTrue)
         .help(OPT_SORT_REVERSE_HELP);
-    let opt_long_ext = Arg::new(OPT_LONG_EXT_ID)
+    let opt_long_ext = Arg::new(cli::OPT_LONG_EXT_ID)
         .short('l')
         .action(ArgAction::SetTrue)
-        .help(OPT_LONG_EXT_HELP);
+        .help(cli::OPT_LONG_EXT_HELP);
     let arg_dir = Arg::new(OPT_DIR_ID)
         .required(true)
         .action(ArgAction::Append)
@@ -59,12 +58,7 @@ pub fn parse_cli_args(args: &ArgMatches) -> Box<dyn ExecutableCmd>
         read_config: ReadConfig {
             recursive: args.get_flag(OPT_RECURSIVE_ID),
             include_hidden_sub_dirs: !args.get_flag(OPT_IGNORE_HIDDEN_SUB_DIRS_ID),
-            get_ext:  if args.get_flag(OPT_LONG_EXT_ID) {
-                read_files::get_long_ext
-            }
-            else {
-                read_files::get_short_ext
-            },
+            split_stem_and_ext:  cli::get_stem_ext_splitter(args, cli::OPT_LONG_EXT_ID),
         },
         report_config: ReportConfig {
             num_files: args.get_flag(OPT_NUM_FILES_ID),
@@ -83,8 +77,6 @@ const OPT_RECURSIVE_ID: &str = "recursive";
 const OPT_RECURSIVE_HELP: &str = "Include files in sub directories";
 const OPT_IGNORE_HIDDEN_SUB_DIRS_ID: &str = "hidden-sub-dirs";
 const OPT_IGNORE_HIDDEN_SUB_DIRS_HELP: &str = "Ignore files in hidden sub directories";
-const OPT_LONG_EXT_ID: &str = "long-ext";
-const OPT_LONG_EXT_HELP: &str = "Treat everything after the first (non-initial) dot as the extension";
 const OPT_NUM_FILES_ID: &str = "num-files";
 const OPT_NUM_FILES_HELP: &str = "Print the number of files with each extension";
 const OPT_TOT_NUM_FILES_ID: &str = "tot-num-files";

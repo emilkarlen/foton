@@ -1,0 +1,3 @@
+[act]
+
+@ BIN_EXE --long @[FORMAT_ARGS]@ @[DIR]@

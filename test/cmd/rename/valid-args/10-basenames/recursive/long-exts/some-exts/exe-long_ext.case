@@ -1,0 +1,12 @@
+[act]
+
+@ BIN_EXE -r --long @[EXT_FILTER_OPTS_long]@ @[DIR]@
+
+[assert]
+
+stdout equals @[REPORT_long]@
+
+dir-contents . : matches -full
+{
+  @[DIR]@ : @[DIR_W_RENAMED_FILES_long]@
+}

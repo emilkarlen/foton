@@ -1,0 +1,51 @@
+[cases]
+
+*.case
+
+[setup]
+
+including ../common.xly
+
+[before-assert]
+
+def file-matcher DIR_W_RENAMED_FILES_long =
+  type dir && dir-contents matches -full
+    {
+      @[FN_A_E1_rn_long]@ : type file && contents equals @[FN_A_E1]@
+      @[FN_A_E2_rn_long]@ : type file && contents equals @[FN_A_E2]@
+      @[FN_A_E3_rn_long]@ : type file && contents equals @[FN_A_E3]@
+      @[FN_A_E4_rn_long]@ : type file && contents equals @[FN_A_E4]@
+    }
+
+def string REPORT_long =
+<<EOF
+@[DIR]@: @[FN_A_E1]@ -> @[FN_A_E1_rn_long]@
+@[DIR]@: @[FN_A_E2]@ -> @[FN_A_E2_rn_long]@
+@[DIR]@: @[FN_A_E3]@ -> @[FN_A_E3_rn_long]@
+@[DIR]@: @[FN_A_E4]@ -> @[FN_A_E4_rn_long]@
+EOF
+
+
+def file-matcher DIR_W_RENAMED_FILES_short =
+  type dir && dir-contents matches -full
+    {
+      @[FN_A_E1_rn_short]@ : type file && contents equals @[FN_A_E1]@
+      @[FN_A_E2_rn_short]@ : type file && contents equals @[FN_A_E2]@
+      @[FN_A_E3_rn_short]@ : type file && contents equals @[FN_A_E3]@
+      @[FN_A_E4_rn_short]@ : type file && contents equals @[FN_A_E4]@
+    }
+
+def string REPORT_short =
+<<EOF
+@[DIR]@: @[FN_A_E1]@ -> @[FN_A_E1_rn_short]@
+@[DIR]@: @[FN_A_E2]@ -> @[FN_A_E2_rn_short]@
+@[DIR]@: @[FN_A_E3]@ -> @[FN_A_E3_rn_short]@
+@[DIR]@: @[FN_A_E4]@ -> @[FN_A_E4_rn_short]@
+EOF
+
+
+[assert]
+
+exit-code == 0
+
+stderr is-empty

@@ -1,6 +1,6 @@
 use super::CmdConfig;
 use crate::command::ExecutableCmd;
-use crate::common::ext_filter_cli;
+use crate::common::{cli, ext_filter_cli};
 use crate::rename::config::NamingConfigCli;
 use clap::builder::*;
 use clap::{value_parser, ArgMatches};
@@ -24,6 +24,11 @@ pub fn sub_cmd(name: &'static str) -> Command
         .long("format")
         .action(ArgAction::Set)
         .help(OPT_FORMAT_HELP);
+    let opt_long_ext = Arg::new(cli::OPT_LONG_EXT_ID)
+        .short('l')
+        .long("long")
+        .action(ArgAction::SetTrue)
+        .help(cli::OPT_LONG_EXT_HELP);
     let opt_execute = Arg::new(OPT_EXECUTE_ID)
         .short(OPT_EXECUTE_SHORT)
         .action(ArgAction::SetTrue)
@@ -45,6 +50,7 @@ pub fn sub_cmd(name: &'static str) -> Command
         .arg(opt_start_num)
         .arg(opt_min_num_width)
         .arg(opt_format)
+        .arg(opt_long_ext)
         .arg(opt_execute)
         .arg(opt_recursive)
         .arg(arg_dir)
@@ -59,6 +65,7 @@ pub fn parse_cli_args(args: &ArgMatches) -> Box<dyn ExecutableCmd>
             recursive: args.get_flag(OPT_RECURSIVE_ID),
             extensions_filter: ext_filter_cli::parse_extensions_filter(args),
             include_hidden_sub_dirs: true,
+            split_stem_and_ext:  cli::get_stem_ext_splitter(args, cli::OPT_LONG_EXT_ID),
         },
         naming_config: NamingConfigCli {
             start_num: *args.get_one::<usize>(OPT_START_NUM_ID).unwrap(),

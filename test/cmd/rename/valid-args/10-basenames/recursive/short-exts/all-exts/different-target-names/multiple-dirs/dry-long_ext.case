@@ -1,0 +1,11 @@
+[act]
+
+@ BIN_DRY -r --long @[DIR]@ @[DIR_2]@
+
+[assert]
+
+dir-contents . : matches -full
+{
+  @[DIR]@   : @[DIR_W_ORIG_FILES]@
+  @[DIR_2]@ : @[DIR_W_ORIG_FILES_2]@
+}

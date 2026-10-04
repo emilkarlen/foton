@@ -1,0 +1,10 @@
+[act]
+
+@ BIN_EXE -r --long @[FORMAT_ARGS]@ @[DIR]@
+
+[assert]
+
+dir-contents . : matches -full
+{
+  @[DIR]@ : type dir && dir-contents matches -full @[DIR_CONTENTS_after]@
+}

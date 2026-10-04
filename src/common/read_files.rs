@@ -1,12 +1,23 @@
 use crate::common::ext_filter::ExtensionsFilter;
 use std::collections::HashMap;
-use std::ffi::OsString;
+use std::ffi::{OsStr, OsString};
 use std::fs;
 use std::fs::FileType;
 use std::io;
 use std::path::{Path, PathBuf};
 
 
+pub type StemExtSplitter = fn(&OsStr) -> (&OsStr, Option<&OsStr>);
+
+pub struct ReadConfig
+{
+    pub recursive: bool,
+    pub include_hidden_sub_dirs: bool,
+    pub extensions_filter: Box<dyn ExtensionsFilter>,
+    pub split_stem_and_ext: StemExtSplitter,
+}
+
+#[derive(Debug)]
 pub struct PathWithName
 {
     pub path: PathBuf,
@@ -23,6 +34,7 @@ impl PathWithName
     }
 }
 
+#[derive(Debug)]
 pub struct DirContents<FILES>
 {
     pub dir: PathWithName,
@@ -53,13 +65,6 @@ impl FnInfo
     }
 }
 
-pub struct ReadConfig
-{
-    pub recursive: bool,
-    pub include_hidden_sub_dirs: bool,
-    pub extensions_filter: Box<dyn ExtensionsFilter>,
-}
-
 pub fn group_by_file_name_stem(dir: PathWithName, config: &ReadConfig) -> io::Result<DirContents<HashMap<FileNameStem, Vec<Extension>>>>
 {
     let (sub_dir_names, files) = read_files_non_rec(&dir.path, config)?;
@@ -82,11 +87,11 @@ fn read_files_non_rec(dir: &Path, config: &ReadConfig) -> io::Result<(Vec<PathWi
     for mb_entry in entries {
         let entry = mb_entry?;
         let f_type = entry.file_type()?;
-        let mb_dof = DirOrFile::from(&f_type, &entry);
+        let mb_dof = DirOrFile::from(&f_type, &entry, config.split_stem_and_ext);
         if let Some(dof) = mb_dof {
             match dof {
                 DirOrFile::ADir(pwn) => {
-                        if config.include_hidden_sub_dirs || !crate::common::fs::is_hidden(&pwn.name) {
+                        if config.include_hidden_sub_dirs || !crate::common::path::is_hidden(&pwn.name) {
                             sub_dirs.push(pwn)
                         }
                 }
@@ -120,14 +125,14 @@ enum DirOrFile
 
 impl DirOrFile
 {
-    fn from(f_type: &FileType, entry: &fs::DirEntry) -> Option<DirOrFile>
+    fn from(f_type: &FileType, entry: &fs::DirEntry, splitter: StemExtSplitter) -> Option<DirOrFile>
     {
         if f_type.is_dir() {
             let pwn = PathWithName::from(entry.path())?;
             Some(DirOrFile::ADir(pwn))
         }
         else if f_type.is_file() {
-            let x = StemAndExt::from(entry)?;
+            let x = StemAndExt::from(entry, splitter)?;
             Some(DirOrFile::AFile(x))
         }
         else {
@@ -145,15 +150,20 @@ struct StemAndExt
 
 impl StemAndExt
 {
-    fn from(entry: &fs::DirEntry) -> Option<StemAndExt>
+    fn from(entry: &fs::DirEntry, splitter: StemExtSplitter) -> Option<StemAndExt>
     {
         let path = entry.path();
-        let stem = path.file_stem()?;
-        let ext = path.extension()?;
-        Some(StemAndExt {
-            stem: OsString::from(stem),
-            ext: OsString::from(ext),
+        let file_name = path.file_name()?;
+        let (stem, mb_ext) = splitter(file_name);
+        // dbg!(&path, &stem, &mb_ext);
+        if let Some(ext) = mb_ext {
+            Some(StemAndExt {
+                stem: OsString::from(stem),
+                ext: OsString::from(ext),
+            })
         }
-        )
-    }
+        else {
+            None
+                 }
+        }
 }
