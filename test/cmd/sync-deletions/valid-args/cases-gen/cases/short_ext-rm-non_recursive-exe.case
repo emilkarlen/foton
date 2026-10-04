@@ -4,10 +4,10 @@
 
 [assert]
 
-stdout @[REPORT_MATCHER_rm_nr]@
+stdout @[REPORT_MATCHER_rm_nr_es]@
 
 dir-contents . : matches -full
 {
   @[SRC_DIR]@ : type dir && dir-contents matches -full @[SRC_DIR_CONTENTS]@
-  @[DST_DIR]@ : type dir && dir-contents matches -full @[DST_DIR_CONTENTS_after_nr]@
+  @[DST_DIR]@ : type dir && dir-contents matches -full @[DST_DIR_CONTENTS_after_nr_es]@
 }

@@ -6,3 +6,5 @@ diff-in-sub-dir--subdir-deleted
 diff-in-hidden-sub-dir--skip
 diff-in-hidden-sub-dir--include
 src-is-empty
+long-and-short-exts
+long-and-short-exts--exclusions

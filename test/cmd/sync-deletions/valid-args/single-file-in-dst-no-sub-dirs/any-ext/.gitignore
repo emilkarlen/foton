@@ -5,3 +5,5 @@ diff-basename
 diff-basename--spc-in-basename
 more-in-src
 src-is-empty
+long-exts-in-dst
+long-exts-in-src

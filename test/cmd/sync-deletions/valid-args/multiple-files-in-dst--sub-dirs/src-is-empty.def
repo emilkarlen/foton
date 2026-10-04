@@ -16,9 +16,4 @@ DST =
 
 DELETIONS_RECURSIVE = &DST
 
-DELETIONS_NON_RECURSIVE =
-{
-  file a.ext1
-  file a.ext2
-  file b.ext2
-}
+DELETIONS_RECURSIVE_ExtLong = &DELETIONS_RECURSIVE

@@ -1,0 +1,35 @@
+EXTRA_OPTIONS = [ ]
+
+#        |  S  | L
+# f.a.x  | f.a | f
+# f.a.y  | f.a | f
+# f.a.z  | f.a | f
+# f.b.x  | f.b | f
+# f.x    | f   | f
+
+SRC =
+{
+  file f.ext
+}
+
+DST =
+{
+  file f.a.x
+  file f.a.y
+  file f.b.x
+  file f.x
+  file g.a.x
+}
+
+DELETIONS_RECURSIVE =
+{
+  file f.a.x
+  file f.a.y
+  file f.b.x
+  file g.a.x
+}
+
+DELETIONS_RECURSIVE_ExtLong =
+{
+  file g.a.x
+}

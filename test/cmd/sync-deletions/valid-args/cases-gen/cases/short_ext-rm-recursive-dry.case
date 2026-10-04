@@ -1,18 +1,13 @@
 [act]
 
-@ BIN_DRY --move @[MOV_DIR]@  @[EXTRA_OPTIONS]@  @[SRC_DIR]@ @[DST_DIR]@
-
-[setup]
-
-dir @[MOV_DIR]@
+@ BIN_DRY -r  @[EXTRA_OPTIONS]@  @[SRC_DIR]@ @[DST_DIR]@
 
 [assert]
 
-stdout @[REPORT_MATCHER_mv_nr]@
+stdout @[REPORT_MATCHER_rm_r_es]@
 
 dir-contents . : matches -full
 {
   @[SRC_DIR]@ : type dir && dir-contents matches -full @[SRC_DIR_CONTENTS]@
   @[DST_DIR]@ : type dir && dir-contents matches -full @[DST_DIR_CONTENTS_before]@
-  @[MOV_DIR]@ : type dir && dir-contents is-empty
 }

@@ -1,0 +1,46 @@
+EXTRA_OPTIONS = [ --skip not.in.src ]
+
+SRC =
+{
+  dir sub-dir
+  {
+    file s1.long.ext
+  }
+  file f1.long.ext
+  file f2.ext
+}
+
+DST =
+{
+  dir sub-dir
+  {
+    file s1.short_ext
+    file s1.long.ext2
+    file s1.even.longer.ext
+
+    file d1.a.long.ext
+  }
+  file f1.long.dst_ext
+  file f2.ext
+  file f3.not.in.src
+}
+
+DELETIONS_RECURSIVE =
+{
+  file f3.not.in.src
+  dir sub-dir
+  {
+    file d1.a.long.ext
+
+    file s1.short_ext
+    file s1.even.longer.ext
+  }
+}
+
+DELETIONS_RECURSIVE_ExtLong =
+{
+  dir sub-dir
+  {
+    file d1.a.long.ext
+  }
+}

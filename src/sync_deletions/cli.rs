@@ -1,6 +1,7 @@
 use super::CmdConfig;
 use crate::command::ExecutableCmd;
 use crate::common::ext_filter_cli;
+use crate::common::cli;
 use crate::common::read_files::ReadConfig;
 use clap::builder::*;
 use clap::ArgMatches;
@@ -41,6 +42,7 @@ pub fn sub_cmd(name: &'static str) -> Command
         .after_help(HELP_AFTER_OPTIONS)
         .arg(opt_execute)
         .arg(opt_move)
+        .arg(cli::opt_long_extensions())
         .arg(opt_recursive)
         .arg(opt_ignore_hidden_sub_dirs)
         .arg(arg_dir_src)
@@ -64,7 +66,7 @@ pub fn parse_cli_args(args: &ArgMatches) -> Box<dyn ExecutableCmd>
             recursive: args.get_flag(OPT_RECURSIVE_ID),
             include_hidden_sub_dirs: !args.get_flag(OPT_IGNORE_HIDDEN_SUB_DIRS_ID),
             extensions_filter: ext_filter_cli::parse_extensions_filter(args),
-            split_stem_and_ext: crate::common::path::split_shortest_ext,
+            split_stem_and_ext: cli::get_stem_ext_splitter(args, cli::OPT_LONG_EXT_ID),
         }
     })
 }

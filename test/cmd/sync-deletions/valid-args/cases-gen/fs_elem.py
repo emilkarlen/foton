@@ -1,3 +1,5 @@
+from typing import Optional
+
 import reporting
 import exactly
 
@@ -31,7 +33,12 @@ class Dir(FsElem):
     def __init__(self, name_fs_elem_list: list[tuple[str, FsElem]]):
         self.name_fs_elem_list = tuple(name_fs_elem_list)
 
-    def lookup(self, name: str) -> FsElem:
+    def with_only_root_elements(self) -> 'Dir':
+        return Dir([
+            (n,e) for (n,e) in self.name_fs_elem_list if isinstance(e, File)
+        ])
+
+    def lookup(self, name: str) -> Optional[FsElem]:
         for (n, fse) in self.name_fs_elem_list:
             if n == name:
                 return fse
@@ -51,8 +58,9 @@ class Dir(FsElem):
                 # print("DEBUG: name to del: " + name)
                 if isinstance(fse, Dir):
                     if not isinstance(deleted_fse, Dir):
-                        exit_failure('deletions: Non matching file elements named \'{}\'\nType is Dir in elements to delete from, but in elements to delete: {}'.format(name, deleted_fse.to_str("")))
-                    name_fs_elem_list  += [(name, fse.with_deletions_of(deleted_fse))]
+                        raise Exception('deletions: Non matching file elements named \'{}\'\nType is Dir in elements to delete from, but in elements to delete: {}'.format(name, deleted_fse.to_str("")))
+                    else:
+                        name_fs_elem_list  += [(name, fse.with_deletions_of(deleted_fse))]
 
         return Dir(name_fs_elem_list)
 
@@ -99,5 +107,5 @@ class Dir(FsElem):
             elif isinstance(fse, Dir):
                 ret_val += fse._deletion_elements(comps_before + [name])
             else:
-                exit_failure('Impl error: Unknown type of FsElem: ' + str(fse))
+                raise Exception('Impl error: Unknown type of FsElem: ' + str(fse))
         return ret_val

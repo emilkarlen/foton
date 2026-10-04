@@ -2,6 +2,7 @@ use super::path;
 use crate::common::read_files::StemExtSplitter;
 use clap::ArgMatches;
 use std::path::PathBuf;
+use clap::builder::*;
 
 pub fn get_str_list_arg(args: &ArgMatches, id: &str) -> Vec<Box<String>>
 {
@@ -29,6 +30,15 @@ pub fn get_stem_ext_splitter(
     } else {
         path::split_shortest_ext
     }
+}
+
+pub fn opt_long_extensions() -> Arg
+{
+    Arg::new(OPT_LONG_EXT_ID)
+        .short('l')
+        .long("long")
+        .action(ArgAction::SetTrue)
+        .help(OPT_LONG_EXT_HELP)
 }
 
 pub const OPT_LONG_EXT_ID: &str = "long-ext";

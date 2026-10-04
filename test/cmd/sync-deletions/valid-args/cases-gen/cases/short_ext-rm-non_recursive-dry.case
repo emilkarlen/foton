@@ -1,0 +1,13 @@
+[act]
+
+@ BIN_DRY  @[EXTRA_OPTIONS]@  @[SRC_DIR]@ @[DST_DIR]@
+
+[assert]
+
+stdout @[REPORT_MATCHER_rm_nr_es]@
+
+dir-contents . : matches -full
+{
+  @[SRC_DIR]@ : type dir && dir-contents matches -full @[SRC_DIR_CONTENTS]@
+  @[DST_DIR]@ : type dir && dir-contents matches -full @[DST_DIR_CONTENTS_before]@
+}

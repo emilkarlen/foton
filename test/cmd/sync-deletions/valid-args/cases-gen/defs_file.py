@@ -1,5 +1,6 @@
 import re
 import sys
+from pathlib import Path
 
 from fs_elem import *
 
@@ -20,18 +21,18 @@ class Defs:
     def get_dir(self, key: str) -> Dir:
         val = self._defs.get(key)
         if val is None:
-            exit_failure('Missing mandatory dir definition: {}'.format(key))
+            raise Exception('Missing mandatory dir definition: {}'.format(key))
         if not isinstance(val, Dir):
-            exit_failure('Definition is not a  dir: {}'.format(key))
+            raise Exception('Definition is not a  dir: {}'.format(key))
         else:
             return val
 
     def get_list(self, key: str) -> ElemList:
         val = self._defs.get(key)
         if val is None:
-            exit_failure('Missing mandatory list definition: {}'.format(key))
+            raise Exception('Missing mandatory list definition: {}'.format(key))
         if not isinstance(val, ElemList):
-            exit_failure('Definition is not a  list: {}'.format(key))
+            raise Exception('Definition is not a  list: {}'.format(key))
         else:
             return val
 
@@ -161,8 +162,13 @@ class DefsParser:
             return ret_val
 
 
-def _tokenize(s: str) -> list[Token]:
+def _tokenize(s: str) -> list[str]:
+    s_uncommented_lines = [ l for l in s.splitlines() if (not _is_comment_line(l))]
+    s_uncommented = '\n'.join(s_uncommented_lines) + '\n'
     return [
         x[1] if x[1] else x[0]
-        for x in re.findall(r"'([^']*)'|(\S+)", s)
+        for x in re.findall(r"'([^']*)'|(\S+)", s_uncommented)
         ]
+
+def _is_comment_line(s: str) -> bool:
+    return s.startswith('#')
