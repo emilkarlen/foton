@@ -1,6 +1,6 @@
 [act]
 
-@ BIN_DRY -r @[EXT_FILTER_OPTS]@ @[DIR]@
+@ BIN_DRY -r @[EXT_FILTER_OPTS_include]@ @[DIR]@
 
 [assert]
 

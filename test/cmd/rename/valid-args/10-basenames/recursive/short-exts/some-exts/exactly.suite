@@ -6,7 +6,8 @@
 
 including ../common.xly
 
-def list EXT_FILTER_OPTS = --ext 'ext3' --ext 'ext1'
+def list EXT_FILTER_OPTS_include = --ext 'ext3' --ext 'ext1'
+def list EXT_FILTER_OPTS_exclude = --skip 'ext2,ext2'
 
 [before-assert]
 

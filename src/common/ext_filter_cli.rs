@@ -10,12 +10,14 @@ pub fn add_ext_filter_options(cmd: Command) -> Command
         .short('e')
         .long("ext")
         .help(OPT_INCLUDE_EXT_HELP)
-        .action(ArgAction::Append);
+        .action(ArgAction::Append)
+        .value_delimiter(',');
     let opt_ext_exclude = Arg::new(OPT_SKIP_EXT_ID)
         .short('s')
         .long("skip")
         .help(OPT_SKIP_EXT_HELP)
-        .action(ArgAction::Append);
+        .action(ArgAction::Append)
+        .value_delimiter(',');
 
     let cmd = cmd.arg(opt_ext_exclude);
     let cmd = cmd.arg(opt_ext_include);

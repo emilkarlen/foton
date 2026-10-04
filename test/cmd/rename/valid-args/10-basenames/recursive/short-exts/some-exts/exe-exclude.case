@@ -1,6 +1,6 @@
 [act]
 
-@ BIN_EXE -r --long @[EXT_FILTER_OPTS_include]@ @[DIR]@
+@ BIN_EXE -r @[EXT_FILTER_OPTS_exclude]@ @[DIR]@
 
 [assert]
 
