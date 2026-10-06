@@ -12,7 +12,6 @@ pub mod cli_validation;
 
 use crate::command;
 use crate::command::{CmdError, ExeError, ExecutableCmd};
-use crate::common::read_files::PathWithName;
 use crate::rename::config::{NamingConfig, NamingConfigCli};
 use std::path::PathBuf;
 
@@ -20,7 +19,7 @@ pub struct CmdConfig
 {
     pub execute: bool,
     pub directories: Vec<PathBuf>,
-    pub read_config: read_files::ReadConfig,
+    pub read_config: crate::common::read_files::ReadConfig,
     pub naming_config: NamingConfigCli,
 }
 
@@ -28,20 +27,20 @@ impl ExecutableCmd for CmdConfig
 {
     fn execute(&self) -> Result<(), CmdError>
     {
-        let (dirs, naming_config) = self.validate_args().map_err(CmdError::ArgsValidationError)?;
-        self.with_valid_args(dirs, &naming_config).map_err(command::exe_to_cmd)
+        let naming_config = self.validate_args().map_err(CmdError::ArgsValidationError)?;
+        self.with_valid_args(&naming_config).map_err(command::exe_to_cmd)
     }
 }
 
 impl CmdConfig
 {
-    fn validate_args(&self) -> Result<(Vec<PathWithName>, NamingConfig), String>
+    fn validate_args(&self) -> Result<NamingConfig, String>
     {
         cli_validation::validate_args(&self.directories, &self.naming_config)
     }
 
-    fn with_valid_args(&self, dirs: Vec<PathWithName>, naming_config: &NamingConfig) -> Result<(), ExeError>
+    fn with_valid_args(&self, naming_config: &NamingConfig) -> Result<(), ExeError>
     {
-        main::main(dirs, self.execute, &self.read_config, naming_config)
+        main::main(self.directories.clone(), self.execute, &self.read_config, naming_config)
     }
 }

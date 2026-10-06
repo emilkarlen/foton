@@ -1,6 +1,6 @@
+use crate::common::read_files::types::PathWithName;
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
-use crate::common::read_files::PathWithName;
 
 pub fn is_existing_dir(p: &Path) -> Result<(), String>
 {

@@ -1,12 +1,12 @@
 use super::CmdConfig;
 use crate::command::ExecutableCmd;
-use crate::common::ext_filter_cli;
 use crate::common::cli;
+use crate::common::ext_filter_cli;
 use crate::common::read_files::ReadConfig;
+use crate::sync_deletions::config::ProcessConfig;
 use clap::builder::*;
 use clap::ArgMatches;
 use std::path::PathBuf;
-use crate::sync_deletions::config::ProcessConfig;
 
 pub fn sub_cmd(name: &'static str) -> Command
 {

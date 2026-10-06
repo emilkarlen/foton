@@ -1,41 +1,22 @@
 use super::common::FnInfo;
 use crate::common;
-use crate::common::read_files::DirContents;
-pub(crate) use crate::common::read_files::{Extension, FileNameStem, PathWithName, ReadConfig};
+use crate::common::read_files::stem_and_exts_builder::stem_to_exts_map_builder;
+pub(crate) use crate::common::read_files::types::Extension;
+pub(crate) use crate::common::read_files::types::FileNameStem;
+use crate::common::read_files::types::{map_dc_multi, DirContents};
 use std::collections::HashMap;
 use std::io;
+use std::path::PathBuf;
 
-pub fn rev_sorted_file_infos(dirs: Vec<PathWithName>, config: &ReadConfig) -> io::Result<Vec<DirContents<Vec<FnInfo>>>>
+pub fn sorted_file_infos(dirs: Vec<PathBuf>, config: &common::read_files::ReadConfig) -> io::Result<Vec<(PathBuf, DirContents<Vec<FnInfo>>)>>
 {
-    let mut ret_val = Vec::with_capacity(dirs.len());
-    for dir in dirs {
-        let gb_stem = common::read_files::group_by_file_name_stem(dir, config)?;
-        ret_val.push(to_fn_info_dc(gb_stem));
-    }
-    Ok(ret_val)
+    let dcs = common::read_files::read_files_and_dirs_multi(dirs, config, &mut stem_to_exts_map_builder())?;
+    Ok(map_dc_multi(&to_fn_info_files, dcs))
 }
 
-fn to_fn_info_dc(dc: DirContents<HashMap<FileNameStem, Vec<Extension>>>) -> DirContents<Vec<FnInfo>>
+fn to_fn_info_files(files: HashMap<FileNameStem, Vec<Extension>>) -> Vec<FnInfo>
 {
-    let DirContents { dir, mut sub_dirs, mut files } = dc;
-    
-    let mut sub_dirs1 = Vec::with_capacity(sub_dirs.len());
-    for sub_dir in sub_dirs.drain(..) {
-        sub_dirs1.push(to_fn_info_dc(sub_dir));
-    }
-    DirContents {
-        dir: dir,
-        files: to_fn_info_files(&mut files),
-        sub_dirs: sub_dirs1,
-    }
-}
-
-fn to_fn_info_files(files: &mut HashMap<FileNameStem, Vec<Extension>>) -> Vec<FnInfo>
-{
-    let mut ret_val = Vec::new();
-    for (stem, exts) in files.drain() {
-        ret_val.push(FnInfo::from_os_str(&stem, &exts));
-    }
+    let mut ret_val: Vec<FnInfo> = files.into_iter().map(|(stem, exts)| FnInfo::from_os_str(&stem, &exts)).collect();
     ret_val.sort_by(FnInfo::cmp);
     ret_val
 }

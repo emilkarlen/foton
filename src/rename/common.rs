@@ -28,6 +28,7 @@ impl Rename
     }
 }
 
+#[derive(Debug)]
 pub struct FnInfo
 {
     pub stem: String,

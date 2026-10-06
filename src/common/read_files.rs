@@ -1,13 +1,13 @@
 use crate::common::ext_filter::ExtensionsFilter;
-use std::collections::HashMap;
-use std::ffi::{OsStr, OsString};
-use std::fs;
+use crate::common::read_files::files_builder::{FilesBuilder, FilesBuilderFactory};
+use crate::common::read_files::types::{DirContents, PathWithName, StemAndExt, StemExtSplitter};
 use std::fs::FileType;
-use std::io;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
+use std::{fs, io};
 
-
-pub type StemExtSplitter = fn(&OsStr) -> (&OsStr, Option<&OsStr>);
+pub mod files_builder;
+pub mod types;
+pub mod stem_and_exts_builder;
 
 pub struct ReadConfig
 {
@@ -17,72 +17,44 @@ pub struct ReadConfig
     pub split_stem_and_ext: StemExtSplitter,
 }
 
-#[derive(Debug)]
-pub struct PathWithName
+pub fn read_files_and_dirs<FILES>(
+    dir: &PathBuf,
+    config: &ReadConfig,
+    files_builder_factory: &mut Box<dyn FilesBuilderFactory<FILES>>,
+) -> io::Result<DirContents<FILES>>
 {
-    pub path: PathBuf,
-    pub name: OsString,
-}
-
-impl PathWithName
-{
-    pub fn from(path: PathBuf) -> Option<PathWithName>
-    {
-        let name = path.file_name()?;
-        let nc = OsString::from(name);
-        Some(PathWithName { path, name: nc})
-    }
-}
-
-#[derive(Debug)]
-pub struct DirContents<FILES>
-{
-    pub dir: PathWithName,
-    pub sub_dirs: Vec<DirContents<FILES>>,
-    pub files: FILES,
-}
-pub type FileNameStem = OsString;
-pub type  Extension = OsString;
-
-pub type FileNameStems = HashMap<FileNameStem, Vec<Extension>>;
-
-pub type DirPath = PathBuf;
-
-pub struct FnInfo
-{
-    pub stem: OsString,
-    pub extensions: Vec<OsString>,
-}
-
-impl FnInfo
-{
-    pub fn from(x: (OsString, Vec<OsString>)) -> FnInfo
-    {
-        FnInfo {
-            stem: x.0,
-            extensions: x.1,
-        }
-    }
-}
-
-pub fn group_by_file_name_stem(dir: PathWithName, config: &ReadConfig) -> io::Result<DirContents<HashMap<FileNameStem, Vec<Extension>>>>
-{
-    let (sub_dir_names, files) = read_files_non_rec(&dir.path, config)?;
-    let mut sub_dir_names = sub_dir_names;
+    let (mut sub_dir_names, files) = read_files_non_rec(dir, config, files_builder_factory.new())?;
     let mut sub_dirs = Vec::with_capacity(sub_dir_names.len());
     if config.recursive {
         for sub_dir_path in sub_dir_names.drain(..).rev() {
-            let sub_dir_contents = group_by_file_name_stem(sub_dir_path, config)?;
-            sub_dirs.push(sub_dir_contents);
+            let sub_dir_contents = read_files_and_dirs(&sub_dir_path.path, config, files_builder_factory)?;
+            sub_dirs.push((sub_dir_path, sub_dir_contents));
         }
     }
-    Ok(DirContents{dir, sub_dirs, files, })
+    Ok(DirContents {sub_dirs, files, })
 }
 
-fn read_files_non_rec(dir: &Path, config: &ReadConfig) -> io::Result<(Vec<PathWithName>, HashMap<FileNameStem, Vec<Extension>>)>
+pub fn read_files_and_dirs_multi<FILES>(
+    dirs: Vec<PathBuf>,
+    config: &ReadConfig,
+    files_builder_factory: &mut Box<dyn FilesBuilderFactory<FILES>>,
+) -> io::Result<Vec<(PathBuf, DirContents<FILES>)>>
+{
+    let mut ret_val = Vec::with_capacity(dirs.len());
+    for pwn in dirs {
+        let x = read_files_and_dirs(&pwn, config, files_builder_factory)?;
+        ret_val.push((pwn, x));
+    }
+    Ok(ret_val)
+}
+
+fn read_files_non_rec<FILES>(
+    dir: &PathBuf,
+    config: &ReadConfig,
+    mut files_builder: Box<dyn FilesBuilder<FILES>>,
+) -> io::Result<(Vec<PathWithName>, FILES)>
 {
     let mut sub_dirs: Vec<PathWithName> = Vec::new();
-    let mut files: HashMap<OsString, Vec<OsString>> = HashMap::new();
     let entries = dir.read_dir()?;
     for mb_entry in entries {
         let entry = mb_entry?;
@@ -99,22 +71,12 @@ fn read_files_non_rec(dir: &Path, config: &ReadConfig) -> io::Result<(Vec<PathWi
                     if !config.extensions_filter.accepts_os(&se.ext) {
                         continue;
                     }
-                    match files.get_mut(&se.stem) {
-                        None => {
-                            files.insert(se.stem, vec![se.ext]);
-                        }
-                        Some(exts) => {
-                            exts.push(se.ext);
-                        }
-                    }
+                    files_builder.add(se);
                 }
             }
         }
     }
-    for exts in files.values_mut() {
-        exts.sort();
-    }
-    Ok((sub_dirs, files))
+    Ok((sub_dirs, files_builder.build()))
 }
 
 enum DirOrFile
@@ -127,8 +89,9 @@ impl DirOrFile
 {
     fn from(f_type: &FileType, entry: &fs::DirEntry, splitter: StemExtSplitter) -> Option<DirOrFile>
     {
+        let file_name = entry.file_name();
         if f_type.is_dir() {
-            let pwn = PathWithName::from(entry.path())?;
+            let pwn = PathWithName {path: entry.path(), name: file_name};
             Some(DirOrFile::ADir(pwn))
         }
         else if f_type.is_file() {
@@ -139,31 +102,4 @@ impl DirOrFile
             None
         }
     }
-
-}
-
-struct StemAndExt
-{
-    stem: OsString,
-    ext: OsString,
-}
-
-impl StemAndExt
-{
-    fn from(entry: &fs::DirEntry, splitter: StemExtSplitter) -> Option<StemAndExt>
-    {
-        let path = entry.path();
-        let file_name = path.file_name()?;
-        let (stem, mb_ext) = splitter(file_name);
-        // dbg!(&path, &stem, &mb_ext);
-        if let Some(ext) = mb_ext {
-            Some(StemAndExt {
-                stem: OsString::from(stem),
-                ext: OsString::from(ext),
-            })
-        }
-        else {
-            None
-                 }
-        }
 }

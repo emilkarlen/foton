@@ -2,13 +2,13 @@ pub mod cli;
 pub mod main;
 pub mod config;
 
+use crate::command;
 use crate::command::{CmdError, ExecutableCmd};
 use crate::common::arg_validation;
-use crate::common::read_files::{PathWithName, ReadConfig};
+use crate::common::read_files::ReadConfig;
+use crate::sync_deletions::config::ProcessConfig;
 use std::io;
 use std::path::PathBuf;
-use crate::command;
-use crate::sync_deletions::config::ProcessConfig;
 
 pub struct CmdConfig
 {
@@ -22,13 +22,13 @@ impl ExecutableCmd for CmdConfig
 {
     fn execute(&self) -> Result<(), CmdError>
     {
-        let (src, dst) = self.validate_args().map_err(CmdError::ArgsValidationError)?;
-        self.with_valid_args(src, dst).map_err(command::io_to_cmd)
+        self.validate_args().map_err(CmdError::ArgsValidationError)?;
+        self.with_valid_args().map_err(command::io_to_cmd)
     }
 }
 impl CmdConfig
 {
-    fn validate_args(&self) -> Result<(PathWithName, PathWithName), String>
+    fn validate_args(&self) -> Result<(), String>
     {
         let mt = &(&self.process_config).move_to;
         if  let Some(dir_move_to) = mt {
@@ -37,13 +37,10 @@ impl CmdConfig
         arg_validation::is_existing_dir(self.dir_src.as_ref())?;
         arg_validation::is_existing_dir(self.dir_dst.as_ref())?;
 
-        let dir_src = arg_validation::is_path_with_name(&self.dir_src, "SRC")?;
-        let dir_dst = arg_validation::is_path_with_name(&self.dir_dst, "DST")?;
-
-        Ok((dir_src, dir_dst))
+        Ok(())
     }
-    fn with_valid_args(&self, dir_src: PathWithName, dir_dst: PathWithName) -> io::Result<()>
+    fn with_valid_args(&self) -> io::Result<()>
     {
-        main::with_valid_args(&self.process_config, dir_src, dir_dst, &self.read_config)
+        main::with_valid_args(&self.process_config, &self.dir_src, &self.dir_dst, &self.read_config)
     }
 }

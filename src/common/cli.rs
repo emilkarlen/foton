@@ -1,8 +1,8 @@
 use super::path;
-use crate::common::read_files::StemExtSplitter;
+use crate::common::read_files::types::StemExtSplitter;
+use clap::builder::*;
 use clap::ArgMatches;
 use std::path::PathBuf;
-use clap::builder::*;
 
 pub fn get_str_list_arg(args: &ArgMatches, id: &str) -> Vec<Box<String>>
 {

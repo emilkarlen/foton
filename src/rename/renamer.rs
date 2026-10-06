@@ -1,9 +1,10 @@
-use crate::common::read_files::DirContents;
+use crate::common::read_files::types::DirContents;
 use crate::rename::common::FnInfo;
 use crate::rename::config::NamingConfig;
 use crate::rename::custom_format;
 use crate::rename::custom_format::{FormatPart, Property};
 use crate::rename::renamer::num_generator::SequentialNumGenerator;
+use std::path::PathBuf;
 
 mod num_generator;
 
@@ -15,7 +16,7 @@ pub trait StemGenerator
 }
 
 
-pub fn resolve(dcs: &Vec<DirContents<Vec<FnInfo>>>, config: &NamingConfig) -> Box<dyn StemGenerator>
+pub fn resolve(dcs: &Vec<(PathBuf, DirContents<Vec<FnInfo>>)>, config: &NamingConfig) -> Box<dyn StemGenerator>
 {
     let num_gen = num_generator_for(dcs, config);
     if let Some(fps) = config.format.as_ref() {
@@ -83,9 +84,9 @@ impl StemGenerator for FormatGenerator
         !self.format.iter().find(guaranties_no_clashes).is_some()
     }
 }
-fn num_generator_for(dcs: &Vec<DirContents<Vec<FnInfo>>>, config: &NamingConfig) -> SequentialNumGenerator
+fn num_generator_for(dcs: &Vec<(PathBuf, DirContents<Vec<FnInfo>>)>, config: &NamingConfig) -> SequentialNumGenerator
 {
-    let num_stems: usize = dcs.iter().map(num_stems_in).sum();
+    let num_stems: usize = dcs.iter().map(|(_, dc)| num_stems_in(dc)).sum();
     let max_stem_number = {
         let x = config.start_num + num_stems;
         if x == 0 { x } else { x-1 }
@@ -96,8 +97,8 @@ fn num_generator_for(dcs: &Vec<DirContents<Vec<FnInfo>>>, config: &NamingConfig)
 fn num_stems_in(x: &DirContents<Vec<FnInfo>>) -> usize
 {
     let mut ret_val = x.files.len();
-    for sub_dir in x.sub_dirs.iter() {
-        ret_val += num_stems_in(sub_dir);
+    for (_, dc) in x.sub_dirs.iter() {
+        ret_val += num_stems_in(dc);
     }
     ret_val
 }

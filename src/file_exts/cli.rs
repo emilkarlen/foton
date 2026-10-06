@@ -1,7 +1,8 @@
 use super::CmdConfig;
 use crate::command::ExecutableCmd;
-use crate::common::cli;
-use crate::file_exts::config::{ReadConfig, ReportConfig};
+use crate::common::read_files::ReadConfig;
+use crate::common::{cli, ext_filter};
+use crate::file_exts::config::ReportConfig;
 use clap::builder::*;
 use clap::ArgMatches;
 
@@ -58,6 +59,7 @@ pub fn parse_cli_args(args: &ArgMatches) -> Box<dyn ExecutableCmd>
         read_config: ReadConfig {
             recursive: args.get_flag(OPT_RECURSIVE_ID),
             include_hidden_sub_dirs: !args.get_flag(OPT_IGNORE_HIDDEN_SUB_DIRS_ID),
+            extensions_filter: Box::new(ext_filter::any()),
             split_stem_and_ext:  cli::get_stem_ext_splitter(args, cli::OPT_LONG_EXT_ID),
         },
         report_config: ReportConfig {

@@ -1,10 +1,10 @@
 use super::CmdConfig;
 use crate::command::ExecutableCmd;
+use crate::common::cli::get_str_list_arg_as_paths;
 use crate::common::{cli, ext_filter_cli};
 use crate::rename::config::NamingConfigCli;
 use clap::builder::*;
 use clap::{value_parser, ArgMatches};
-use crate::common::cli::get_str_list_arg_as_paths;
 
 pub fn sub_cmd(name: &'static str) -> Command
 {

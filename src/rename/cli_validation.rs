@@ -1,28 +1,22 @@
 use crate::common::arg_validation;
-use crate::common::read_files::PathWithName;
 use crate::rename::config::{NamingConfig, NamingConfigCli};
-use crate::rename::custom_format::FormatPart;
 use crate::rename::custom_format;
+use crate::rename::custom_format::FormatPart;
 use std::path::PathBuf;
 
-pub fn validate_args(directories: &Vec<PathBuf>, naming_config: &NamingConfigCli) -> Result<(Vec<PathWithName>, NamingConfig), String>
+pub fn validate_args(directories: &Vec<PathBuf>, naming_config: &NamingConfigCli) -> Result<NamingConfig, String>
 {
-    let dirs = check_dirs(directories)?;
+    check_dirs(directories)?;
     let naming_config = resolve_and_check_naming_args(naming_config)?;
-    Ok((dirs, naming_config))
+    Ok(naming_config)
 }
 
-fn check_dirs(directories: &Vec<PathBuf>) -> Result<Vec<PathWithName>, String>
+fn check_dirs(directories: &Vec<PathBuf>) -> Result<(), String>
 {
     for dir in directories.iter() {
         arg_validation::is_existing_dir(dir.as_ref())?;
     }
-    let mut dirs = Vec::with_capacity(directories.len());
-    for dir in directories.iter() {
-        let pwn = arg_validation::is_path_with_name(dir, "DIR")?;
-        dirs.push(pwn);
-    }
-    Ok(dirs)
+    Ok(())
 }
 
 fn resolve_and_check_naming_args(config: &NamingConfigCli) -> Result<NamingConfig, String>

@@ -1,12 +1,14 @@
 pub mod cli;
-mod read_files;
 mod report;
 mod config;
+pub mod files_builder;
+mod read_files;
 
 use crate::command;
 use crate::command::{CmdError, ExecutableCmd};
 use crate::common::arg_validation;
-use crate::file_exts::config::{ReadConfig, ReportConfig};
+use crate::common::read_files::ReadConfig;
+use crate::file_exts::config::ReportConfig;
 use std::io;
 use std::path::PathBuf;
 
@@ -37,7 +39,7 @@ impl CmdConfig
     }
     fn with_valid_args(&self) -> io::Result<()>
     {
-        let mut extensions = read_files::execute(&self.directories, &self.read_config)?;
+        let mut extensions = read_files::execute(self.directories.clone(), &self.read_config)?;
         report::execute(&self.report_config, &mut extensions);
         Ok(())
     }
