@@ -9,5 +9,5 @@ pub trait FilesBuilder<T>
 
 pub trait FilesBuilderFactory<T>
 {
-    fn new(&self) -> Box<dyn FilesBuilder<T>>;
+    fn new<'a>(&'a mut self) -> Box<dyn FilesBuilder<T> + 'a>;
 }

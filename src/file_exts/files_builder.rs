@@ -1,13 +1,11 @@
-use std::collections::HashMap;
-use std::ffi::OsString;
 use crate::common::read_files::files_builder::{FilesBuilder, FilesBuilderFactory};
 use crate::common::read_files::types::StemAndExt;
+use crate::file_exts::types::ExtToCount;
+use std::collections::HashMap;
 
-pub type ExtToCount = HashMap<OsString, usize>;
-
-pub fn new_factory() -> Box<dyn FilesBuilderFactory<ExtToCount>>
+pub fn new_factory() -> ExtsCountsFactory
 {
-    Box::new(ExtsCountsFactory)
+    ExtsCountsFactory
 }
 
 struct ExtsCounts
@@ -19,7 +17,10 @@ impl FilesBuilder<ExtToCount> for ExtsCounts
 {
     fn add(&mut self, file: StemAndExt)
     {
-        self.counts.entry(OsString::from(file.ext)).and_modify(|n| *n += 1).or_insert(1);
+        self.counts
+            .entry(file.ext)
+            .and_modify(|n| *n += 1)
+            .or_insert(1);
     }
 
     fn build(self: Box<Self>) -> ExtToCount
@@ -28,11 +29,11 @@ impl FilesBuilder<ExtToCount> for ExtsCounts
     }
 }
 
-struct ExtsCountsFactory;
+pub struct ExtsCountsFactory;
 
 impl FilesBuilderFactory<ExtToCount> for ExtsCountsFactory
 {
-    fn new(&self) -> Box<dyn FilesBuilder<ExtToCount>>
+    fn new<'a>(&'a mut self) -> Box<dyn FilesBuilder<ExtToCount> +'a>
     {
         Box::new(ExtsCounts{counts: HashMap::new()})
     }

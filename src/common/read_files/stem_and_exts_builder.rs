@@ -4,9 +4,9 @@ use std::collections::HashMap;
 
 pub type StemToExtsMap = HashMap<FileNameStem, Vec<Extension>>;
 
-pub fn stem_to_exts_map_builder() -> Box<dyn FilesBuilderFactory<StemToExtsMap>>
+pub fn stem_to_exts_map_builder() -> StemToExtsBuilderFactory
 {
-    Box::new(StemToExtsBuilderFactory)
+    StemToExtsBuilderFactory
 }
 
 struct StemToExtsBuilder
@@ -45,11 +45,11 @@ impl FilesBuilder<StemToExtsMap> for StemToExtsBuilder
     }
 }
 
-struct StemToExtsBuilderFactory;
+pub struct StemToExtsBuilderFactory;
 
 impl FilesBuilderFactory<StemToExtsMap> for StemToExtsBuilderFactory
 {
-    fn new(&self) -> Box<dyn FilesBuilder<StemToExtsMap>>
+    fn new<'a>(&'a mut self) -> Box<dyn FilesBuilder<StemToExtsMap>>
     {
         Box::new(StemToExtsBuilder::new())
     }

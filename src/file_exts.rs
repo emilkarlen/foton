@@ -3,6 +3,8 @@ mod report;
 mod config;
 pub mod files_builder;
 mod read_files;
+mod files_builder_acc;
+pub mod types;
 
 use crate::command;
 use crate::command::{CmdError, ExecutableCmd};

@@ -1,9 +1,8 @@
-use crate::utils;
-use std::collections::HashMap;
-use std::ffi::OsString;
 use crate::file_exts::config::ReportConfig;
+use crate::file_exts::types::ExtToCount;
+use crate::utils;
 
-pub fn execute(config: &ReportConfig, collection: &mut HashMap<OsString, usize>) {
+pub fn execute(config: &ReportConfig, collection: &mut ExtToCount) {
     let data = report_data(config, collection);
     report(config, &data);
 }
@@ -12,11 +11,11 @@ struct Data
 {
     extensions: Vec<(String, usize)>,
     tot_num_files: usize,
-    max_num_files: usize,
+    max_num_files_per_ext: usize,
     max_ext_len: usize,
 }
 
-fn report_data(config: &ReportConfig, collection: &mut HashMap<OsString, usize>) -> Data
+fn report_data(config: &ReportConfig, collection: &mut ExtToCount) -> Data
 {
     let mut extensions: Vec<(String, usize)> = Vec::new();
     let mut tot_num_files: usize = 0;
@@ -37,14 +36,14 @@ fn report_data(config: &ReportConfig, collection: &mut HashMap<OsString, usize>)
     Data {
         extensions,
         tot_num_files,
-        max_num_files,
+        max_num_files_per_ext: max_num_files,
         max_ext_len,
     }
 }
 
 fn report(config: &ReportConfig, data: &Data)
 {
-    let num_formatter = utils::FixedWidthFormatter::new_for_num(data.max_num_files, 0);
+    let num_formatter = utils::FixedWidthFormatter::new_for_num(data.max_num_files_per_ext, 0);
     let ext_formatter = utils::FixedWidthFormatter::new(data.max_ext_len);
     for (ext, num) in data.extensions.iter() {
         if config.num_files {
@@ -68,7 +67,7 @@ fn report(config: &ReportConfig, data: &Data)
 fn sort_res(config: &ReportConfig, extensions: &mut Vec<(String, usize)>)
 {
     if config.sort_on_num_ext {
-        extensions.sort_by(cmd_on_num_ext);
+        extensions.sort_by(cmp_on_num_ext);
     } else {
         extensions.sort();
     }
@@ -77,7 +76,7 @@ fn sort_res(config: &ReportConfig, extensions: &mut Vec<(String, usize)>)
     }
 }
 
-fn cmd_on_num_ext((xe, xn): &(String, usize), (ye,yn): &(String, usize)) -> core::cmp::Ordering
+fn cmp_on_num_ext((xe, xn): &(String, usize), (ye,yn): &(String, usize)) -> core::cmp::Ordering
 {
     (xn, xe).cmp(&(yn, ye))
 }

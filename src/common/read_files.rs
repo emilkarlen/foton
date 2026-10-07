@@ -17,11 +17,13 @@ pub struct ReadConfig
     pub split_stem_and_ext: StemExtSplitter,
 }
 
-pub fn read_files_and_dirs<FILES>(
+pub fn read_files_and_dirs<FILES, FACTORY>(
     dir: &PathBuf,
     config: &ReadConfig,
-    files_builder_factory: &mut Box<dyn FilesBuilderFactory<FILES>>,
+    files_builder_factory: &mut FACTORY,
 ) -> io::Result<DirContents<FILES>>
+where
+    FACTORY: FilesBuilderFactory<FILES>
 {
     let (mut sub_dir_names, files) = read_files_non_rec(dir, config, files_builder_factory.new())?;
     let mut sub_dirs = Vec::with_capacity(sub_dir_names.len());
@@ -34,11 +36,13 @@ pub fn read_files_and_dirs<FILES>(
     Ok(DirContents {sub_dirs, files, })
 }
 
-pub fn read_files_and_dirs_multi<FILES>(
+pub fn read_files_and_dirs_multi<T, FACTORY>(
     dirs: Vec<PathBuf>,
     config: &ReadConfig,
-    files_builder_factory: &mut Box<dyn FilesBuilderFactory<FILES>>,
-) -> io::Result<Vec<(PathBuf, DirContents<FILES>)>>
+    files_builder_factory: &mut FACTORY,
+) -> io::Result<Vec<(PathBuf, DirContents<T>)>>
+where
+    FACTORY: FilesBuilderFactory<T>
 {
     let mut ret_val = Vec::with_capacity(dirs.len());
     for pwn in dirs {
@@ -48,11 +52,13 @@ pub fn read_files_and_dirs_multi<FILES>(
     Ok(ret_val)
 }
 
-fn read_files_non_rec<FILES>(
+fn read_files_non_rec<T, BUILDER>(
     dir: &PathBuf,
     config: &ReadConfig,
-    mut files_builder: Box<dyn FilesBuilder<FILES>>,
-) -> io::Result<(Vec<PathWithName>, FILES)>
+    mut files_builder: Box<BUILDER>,
+) -> io::Result<(Vec<PathWithName>, T)>
+where
+    BUILDER: FilesBuilder<T> + ?Sized
 {
     let mut sub_dirs: Vec<PathWithName> = Vec::new();
     let entries = dir.read_dir()?;
