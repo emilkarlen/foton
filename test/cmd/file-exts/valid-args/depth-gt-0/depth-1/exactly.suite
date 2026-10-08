@@ -1,0 +1,30 @@
+[cases]
+
+*.case
+
+
+[setup]
+
+including ../common.xly
+
+
+[assert]
+
+stdout equals @[REPORT]@
+
+
+[before-assert]
+
+def string REPORT =
+<<EOF
+@[DIR]@:
+@[INDENT_0]@root 1
+@[DIR]@/sub-1:
+@[INDENT_1]@sub1   1
+@[INDENT_1]@sub12  1
+@[INDENT_1]@sub123 1
+@[DIR]@/sub-2:
+@[INDENT_1]@sub2   2
+@[INDENT_1]@sub22  2
+@[INDENT_1]@sub221 1
+EOF

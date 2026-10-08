@@ -3,6 +3,8 @@ use crate::common::read_files::types::StemAndExt;
 use crate::file_exts::types::ExtToCount;
 use std::collections::HashMap;
 
+pub struct ExtsCountsFactory;
+
 pub fn new_factory() -> ExtsCountsFactory
 {
     ExtsCountsFactory
@@ -28,8 +30,6 @@ impl FilesBuilder<ExtToCount> for ExtsCounts
         self.counts
     }
 }
-
-pub struct ExtsCountsFactory;
 
 impl FilesBuilderFactory<ExtToCount> for ExtsCountsFactory
 {

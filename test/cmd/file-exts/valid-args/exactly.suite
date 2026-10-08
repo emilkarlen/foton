@@ -1,5 +1,4 @@
 [suites]
 
-non-recursive
-recursive
-multiple-dir-args
+depth-0
+depth-gt-0

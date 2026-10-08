@@ -1,0 +1,3 @@
+[act]
+
+@ BIN_CMD -r -n --depth 2 @[DIR]@

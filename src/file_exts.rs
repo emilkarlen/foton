@@ -5,6 +5,8 @@ pub mod files_builder;
 mod read_files;
 mod files_builder_acc;
 pub mod types;
+pub mod main;
+mod reporting;
 
 use crate::command;
 use crate::command::{CmdError, ExecutableCmd};
@@ -16,6 +18,7 @@ use std::path::PathBuf;
 
 pub struct CmdConfig
 {
+    pub depth: usize,
     pub read_config: ReadConfig,
     pub report_config: ReportConfig,
     pub directories: Vec<PathBuf>,
@@ -41,8 +44,6 @@ impl CmdConfig
     }
     fn with_valid_args(&self) -> io::Result<()>
     {
-        let mut extensions = read_files::execute(self.directories.clone(), &self.read_config)?;
-        report::execute(&self.report_config, &mut extensions);
-        Ok(())
+        main::main(self)
     }
 }
