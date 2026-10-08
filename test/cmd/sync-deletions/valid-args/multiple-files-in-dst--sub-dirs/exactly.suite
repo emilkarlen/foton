@@ -3,7 +3,7 @@
 all-in-src
 diff-in-sub-dir
 diff-in-sub-dir--subdir-deleted
-diff-in-hidden-sub-dir--skip
+diff-in-hidden-sub-dir--exclude
 diff-in-hidden-sub-dir--include
 all-in-src--diff-ext
 all-diff-basename

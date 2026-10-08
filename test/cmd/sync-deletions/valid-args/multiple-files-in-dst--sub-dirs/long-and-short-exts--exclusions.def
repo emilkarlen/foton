@@ -1,4 +1,4 @@
-EXTRA_OPTIONS = [ --skip not.in.src ]
+EXTRA_OPTIONS = [ --exclude not.in.src ]
 
 SRC =
 {

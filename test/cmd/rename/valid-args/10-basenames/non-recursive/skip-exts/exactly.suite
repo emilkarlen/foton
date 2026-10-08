@@ -8,7 +8,7 @@ including ../common.xly
 
 [setup]
 
-def list EXT_FILTER_OPTS = -s 'ext3'
+def list EXT_FILTER_OPTS = -e 'ext3'
 
 [before-assert]
 

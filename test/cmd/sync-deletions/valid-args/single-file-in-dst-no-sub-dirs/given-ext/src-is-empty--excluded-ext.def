@@ -1,4 +1,4 @@
-EXTRA_OPTIONS = [ --skip ext ]
+EXTRA_OPTIONS = [ --exclude ext ]
 
 SRC = { }
 

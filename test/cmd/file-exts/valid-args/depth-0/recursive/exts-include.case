@@ -1,0 +1,12 @@
+[act]
+
+@ BIN_CMD -r -n -N -i ext1 --include ext3 @[SRC_DIR]@
+
+[assert]
+
+stdout equals
+<<EOF
+ext1 12
+ext3  4
+     16
+EOF

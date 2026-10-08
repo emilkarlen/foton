@@ -10,8 +10,8 @@ including ../common.xly
 
 [setup]
 
-def list EXT_FILTER_OPTS_short = --ext 'ext1,ext3,x,z,last1'
-def list EXT_FILTER_OPTS_long  = --ext 'a.y,e.last2,ext1.ext2.ext3' --ext 'ext1'
+def list EXT_FILTER_OPTS_short = --include 'ext1,ext3,x,z,last1'
+def list EXT_FILTER_OPTS_long  = --include 'a.y,e.last2,ext1.ext2.ext3' --include 'ext1'
 
 
 [assert]
