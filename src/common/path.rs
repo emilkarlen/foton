@@ -1,3 +1,11 @@
+// LICENSE
+//
+// This file contains code copied from the Rust standard library.
+// Because of that, this file is licenced under the same licenses
+// as the Rust standard library: dual-licensed under
+// - Apache License, Version 2.0
+// - MIT license
+
 use crate::utils;
 use std::ffi::OsStr;
 
