@@ -1,4 +1,4 @@
-EXTRA_OPTIONS = [ -e dst_ext ]
+EXTRA_OPTIONS = [ -i dst_ext ]
 
 SRC =
 {

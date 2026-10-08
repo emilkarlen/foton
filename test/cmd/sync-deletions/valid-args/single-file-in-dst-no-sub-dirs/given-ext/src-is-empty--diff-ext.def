@@ -1,4 +1,4 @@
-EXTRA_OPTIONS = [ -e nonmatchingext ]
+EXTRA_OPTIONS = [ -i nonmatchingext ]
 
 SRC = { }
 

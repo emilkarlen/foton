@@ -1,6 +1,6 @@
 [act]
 
-@ BIN_CMD -e ext-to-include -s ext-to-skip dir-arg
+@ BIN_CMD -i ext-to-include -s ext-to-skip dir-arg
 
 [setup]
 

@@ -8,8 +8,8 @@ including ../common.xly
 
 [setup]
 
-def list EXT_FILTER_OPTS_short = -e 'ext1' -e 'ext2'
-def list EXT_FILTER_OPTS_long  = -e 'ext2.ext3' -e 'ext3.ext4'
+def list EXT_FILTER_OPTS_short = -i 'ext1' -i 'ext2'
+def list EXT_FILTER_OPTS_long  = -i 'ext2.ext3' -i 'ext3.ext4'
 
 [before-assert]
 

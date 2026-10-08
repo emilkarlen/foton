@@ -1,4 +1,4 @@
-EXTRA_OPTIONS = [ -e ext ]
+EXTRA_OPTIONS = [ -i ext ]
 
 SRC = { }
 

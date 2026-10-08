@@ -1,4 +1,4 @@
-EXTRA_OPTIONS = [ -e ext-included ]
+EXTRA_OPTIONS = [ -i ext-included ]
 
 SRC =
 {
