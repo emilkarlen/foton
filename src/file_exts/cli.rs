@@ -1,6 +1,6 @@
 use super::CmdConfig;
 use crate::command::ExecutableCmd;
-use crate::common::read_files::ReadConfig;
+use crate::common::read_files::config::ReadConfig;
 use crate::common::{cli, ext_filter};
 use crate::file_exts::config::ReportConfig;
 use clap::builder::*;

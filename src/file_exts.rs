@@ -11,7 +11,7 @@ mod reporting;
 use crate::command;
 use crate::command::{CmdError, ExecutableCmd};
 use crate::common::arg_validation;
-use crate::common::read_files::ReadConfig;
+use crate::common::read_files::config::ReadConfig;
 use crate::file_exts::config::ReportConfig;
 use std::io;
 use std::path::PathBuf;

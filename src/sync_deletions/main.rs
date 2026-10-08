@@ -1,8 +1,8 @@
 use crate::common::ext_filter::any;
+use crate::common::read_files;
+use crate::common::read_files::config::ReadConfig;
 use crate::common::read_files::stem_and_exts_builder;
 use crate::common::read_files::types::{DirContents, Extension, FileNameStem, PathWithName};
-use crate::common::read_files::ReadConfig;
-use crate::common::read_files;
 use crate::sync_deletions::config::ProcessConfig;
 use std::collections::HashMap;
 use std::ffi::OsString;

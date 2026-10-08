@@ -19,7 +19,7 @@ pub struct CmdConfig
 {
     pub execute: bool,
     pub directories: Vec<PathBuf>,
-    pub read_config: crate::common::read_files::ReadConfig,
+    pub read_config: crate::common::read_files::config::ReadConfig,
     pub naming_config: NamingConfigCli,
 }
 

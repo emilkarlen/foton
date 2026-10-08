@@ -5,7 +5,7 @@ pub mod config;
 use crate::command;
 use crate::command::{CmdError, ExecutableCmd};
 use crate::common::arg_validation;
-use crate::common::read_files::ReadConfig;
+use crate::common::read_files::config::ReadConfig;
 use crate::sync_deletions::config::ProcessConfig;
 use std::io;
 use std::path::PathBuf;

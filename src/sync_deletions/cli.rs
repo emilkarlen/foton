@@ -1,8 +1,6 @@
 use super::CmdConfig;
 use crate::command::ExecutableCmd;
-use crate::common::cli;
-use crate::common::ext_filter_cli;
-use crate::common::read_files::ReadConfig;
+use crate::common::read_files::config_cli as read_config_cli;
 use crate::sync_deletions::config::ProcessConfig;
 use clap::builder::*;
 use clap::ArgMatches;
@@ -18,14 +16,6 @@ pub fn sub_cmd(name: &'static str) -> Command
         .long("move")
         .action(ArgAction::Set)
         .help(OPT_MOVE_HELP);
-    let opt_recursive = Arg::new(OPT_RECURSIVE_ID)
-        .short('r')
-        .action(ArgAction::SetTrue)
-        .help(OPT_RECURSIVE_HELP);
-    let opt_ignore_hidden_sub_dirs = Arg::new(OPT_IGNORE_HIDDEN_SUB_DIRS_ID)
-        .short('d')
-        .action(ArgAction::SetTrue)
-        .help(OPT_IGNORE_HIDDEN_SUB_DIRS_HELP);
     let arg_dir_src = Arg::new(OPT_DIR_SRC_ID)
         .required(true)
         .action(ArgAction::Set)
@@ -36,15 +26,12 @@ pub fn sub_cmd(name: &'static str) -> Command
         .help(OPT_DIR_DST_HELP);
 
     let cmd = Command::new(name);
-    let cmd = ext_filter_cli::add_ext_filter_options(cmd);
+    let cmd = read_config_cli::add_read_config_options(cmd);
     cmd
         .about(HELP_ABOUT)
         .after_help(HELP_AFTER_OPTIONS)
         .arg(opt_execute)
         .arg(opt_move)
-        .arg(cli::opt_long_extensions())
-        .arg(opt_recursive)
-        .arg(opt_ignore_hidden_sub_dirs)
         .arg(arg_dir_src)
         .arg(arg_dir_dst)
 }
@@ -62,12 +49,7 @@ pub fn parse_cli_args(args: &ArgMatches) -> Box<dyn ExecutableCmd>
     },
         dir_src: PathBuf::from(&dir_src),
         dir_dst: PathBuf::from(&dir_dst),
-        read_config: ReadConfig {
-            recursive: args.get_flag(OPT_RECURSIVE_ID),
-            include_hidden_sub_dirs: !args.get_flag(OPT_IGNORE_HIDDEN_SUB_DIRS_ID),
-            extensions_filter: ext_filter_cli::parse_extensions_filter(args),
-            split_stem_and_ext: cli::get_stem_ext_splitter(args, cli::OPT_LONG_EXT_ID),
-        }
+        read_config: read_config_cli::parse_args_matches(args),
     })
 }
 
@@ -82,13 +64,9 @@ const OPT_EXECUTE_ID: &str = "execute";
 const OPT_MOVE_ID: &str = "MOVE-TO-DIR";
 const OPT_MOVE_HELP: &str = "Moves deleted files from DST-DIR to the given directory, instead of deleting (must be on same file system)";
 
-const OPT_RECURSIVE_ID: &str = "recursive";
-const OPT_RECURSIVE_HELP: &str = "Also delete files in sub-directories";
 const OPT_DIR_SRC_ID: &str = "SRC-DIR";
 const OPT_DIR_DST_ID: &str = "DST-DIR";
 const OPT_DIR_SRC_HELP: &str = "The directory where files have been deleted";
 const OPT_DIR_DST_HELP: &str = "The directory in which to delete files";
 const OPT_EXECUTE_SHORT: char = 'x';
 const OPT_EXECUTE_HELP: &str = "Do execute the action (default is to run dry)";
-const OPT_IGNORE_HIDDEN_SUB_DIRS_ID: &str = "hidden-sub-dirs";
-const OPT_IGNORE_HIDDEN_SUB_DIRS_HELP: &str = "Ignore files in hidden sub directories";

@@ -1,7 +1,7 @@
 use super::CmdConfig;
 use crate::command::ExecutableCmd;
 use crate::common::cli::get_str_list_arg_as_paths;
-use crate::common::{cli, ext_filter_cli};
+use crate::common::read_files::config_cli as read_config_cli;
 use crate::rename::config::NamingConfigCli;
 use clap::builder::*;
 use clap::{value_parser, ArgMatches};
@@ -24,35 +24,24 @@ pub fn sub_cmd(name: &'static str) -> Command
         .long("format")
         .action(ArgAction::Set)
         .help(OPT_FORMAT_HELP);
-    let opt_long_ext = Arg::new(cli::OPT_LONG_EXT_ID)
-        .short('l')
-        .long("long")
-        .action(ArgAction::SetTrue)
-        .help(cli::OPT_LONG_EXT_HELP);
     let opt_execute = Arg::new(OPT_EXECUTE_ID)
         .short(OPT_EXECUTE_SHORT)
         .action(ArgAction::SetTrue)
         .help(OPT_EXECUTE_HELP);
-    let opt_recursive = Arg::new(OPT_RECURSIVE_ID)
-        .short('r')
-        .action(ArgAction::SetTrue)
-        .help(OPT_RECURSIVE_HELP);
     let arg_dir = Arg::new(OPT_DIR_ID)
         .required(true)
         .action(ArgAction::Append)
         .help(OPT_DIR_HELP);
 
     let cmd = Command::new(name);
-    let cmd = ext_filter_cli::add_ext_filter_options(cmd);
+    let cmd = read_config_cli::add_read_config_options(cmd);
     cmd
         .about(HELP_ABOUT)
         .after_help(HELP_AFTER_OPTIONS)
         .arg(opt_start_num)
         .arg(opt_min_num_width)
         .arg(opt_format)
-        .arg(opt_long_ext)
         .arg(opt_execute)
-        .arg(opt_recursive)
         .arg(arg_dir)
 }
 
@@ -61,12 +50,7 @@ pub fn parse_cli_args(args: &ArgMatches) -> Box<dyn ExecutableCmd>
     Box::from(CmdConfig {
         execute: args.get_flag(OPT_EXECUTE_ID),
         directories: get_str_list_arg_as_paths(args, OPT_DIR_ID),
-        read_config: crate::common::read_files::ReadConfig {
-            recursive: args.get_flag(OPT_RECURSIVE_ID),
-            extensions_filter: ext_filter_cli::parse_extensions_filter(args),
-            include_hidden_sub_dirs: true,
-            split_stem_and_ext:  cli::get_stem_ext_splitter(args, cli::OPT_LONG_EXT_ID),
-        },
+        read_config: read_config_cli::parse_args_matches(args),
         naming_config: NamingConfigCli {
             start_num: *args.get_one::<usize>(OPT_START_NUM_ID).unwrap(),
             min_width: *args.get_one::<usize>(OPT_MIN_NUM_WIDTH_ID).unwrap(),
@@ -92,8 +76,6 @@ const OPT_MIN_NUM_WIDTH_ID: &str = "MIN-WIDTH";
 const OPT_MIN_NUM_WIDTH_HELP: &str = "Minimum width of number string";
 const OPT_FORMAT_ID: &str = "FORMAT";
 const OPT_FORMAT_HELP: &str = "Custom formatting using {NN} for file number and {stem} for original file name stem.";
-const OPT_RECURSIVE_ID: &str = "recursive";
-const OPT_RECURSIVE_HELP: &str = "Also rename files in sub-directories.";
 const OPT_DIR_ID: &str = "DIR";
 const OPT_DIR_HELP: &str = "The directories containing files to rename.";
 const OPT_EXECUTE_ID: &str = "execute";

@@ -1,6 +1,6 @@
-use crate::common::ext_filter::ExtensionsFilter;
 use crate::common::read_files::files_builder::{FilesBuilder, FilesBuilderFactory};
 use crate::common::read_files::types::{DirContents, PathWithName, StemAndExt, StemExtSplitter};
+pub(crate) use config::ReadConfig;
 use std::fs::FileType;
 use std::path::PathBuf;
 use std::{fs, io};
@@ -8,14 +8,8 @@ use std::{fs, io};
 pub mod files_builder;
 pub mod types;
 pub mod stem_and_exts_builder;
-
-pub struct ReadConfig
-{
-    pub recursive: bool,
-    pub include_hidden_sub_dirs: bool,
-    pub extensions_filter: Box<dyn ExtensionsFilter>,
-    pub split_stem_and_ext: StemExtSplitter,
-}
+pub mod config;
+pub mod config_cli;
 
 pub fn read_files_and_dirs<FILES, FACTORY>(
     dir: &PathBuf,
